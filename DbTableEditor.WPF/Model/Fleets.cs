@@ -12,7 +12,7 @@ namespace DbTableEditor.WPF
 
         public int Id { get; set; }
         public int StatusId { get; set; }
-        public int? CommanderId { get; set; }
+        public int CommanderId { get; set; }
         public string Name { get; set; }
 
         public virtual Commanders Commander { get; set; }
