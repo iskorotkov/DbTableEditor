@@ -1,8 +1,8 @@
 ﻿using System;
+using DbTableEditor.WPF.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace DbTableEditor.WPF
+namespace DbTableEditor.WPF.Context
 {
     public partial class SpaceshipsContext : DbContext
     {
@@ -15,18 +15,18 @@ namespace DbTableEditor.WPF
         {
         }
 
-        public virtual DbSet<Alliances> Alliances { get; set; }
-        public virtual DbSet<AlliancesEntries> AlliancesEntries { get; set; }
-        public virtual DbSet<Commanders> Commanders { get; set; }
-        public virtual DbSet<Empires> Empires { get; set; }
-        public virtual DbSet<Fleets> Fleets { get; set; }
-        public virtual DbSet<GovernmentTypes> GovernmentTypes { get; set; }
-        public virtual DbSet<Planets> Planets { get; set; }
-        public virtual DbSet<Ranks> Ranks { get; set; }
-        public virtual DbSet<Shipyards> Shipyards { get; set; }
-        public virtual DbSet<Spaceships> Spaceships { get; set; }
-        public virtual DbSet<StarTypes> StarTypes { get; set; }
-        public virtual DbSet<Stars> Stars { get; set; }
+        public virtual DbSet<Alliance> Alliances { get; set; }
+        public virtual DbSet<AlliancesEntry> AlliancesEntries { get; set; }
+        public virtual DbSet<Commander> Commanders { get; set; }
+        public virtual DbSet<Empire> Empires { get; set; }
+        public virtual DbSet<Fleet> Fleets { get; set; }
+        public virtual DbSet<GovernmentType> GovernmentTypes { get; set; }
+        public virtual DbSet<Planet> Planets { get; set; }
+        public virtual DbSet<Rank> Ranks { get; set; }
+        public virtual DbSet<Shipyard> Shipyards { get; set; }
+        public virtual DbSet<Spaceship> Spaceships { get; set; }
+        public virtual DbSet<StarType> StarTypes { get; set; }
+        public virtual DbSet<Star> Stars { get; set; }
         public virtual DbSet<Statuses> Statuses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -41,7 +41,7 @@ namespace DbTableEditor.WPF
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Alliances>(entity =>
+            modelBuilder.Entity<Alliance>(entity =>
             {
                 entity.ToTable("alliances");
 
@@ -59,7 +59,7 @@ namespace DbTableEditor.WPF
                 entity.Property(e => e.Power).HasColumnName("power");
             });
 
-            modelBuilder.Entity<AlliancesEntries>(entity =>
+            modelBuilder.Entity<AlliancesEntry>(entity =>
             {
                 entity.ToTable("alliances_entries");
 
@@ -90,7 +90,7 @@ namespace DbTableEditor.WPF
                     .HasConstraintName("alliance_entries_empires_id_fk");
             });
 
-            modelBuilder.Entity<Commanders>(entity =>
+            modelBuilder.Entity<Commander>(entity =>
             {
                 entity.ToTable("commanders");
 
@@ -119,7 +119,7 @@ namespace DbTableEditor.WPF
                     .HasConstraintName("commanders_ranks_id_fk");
             });
 
-            modelBuilder.Entity<Empires>(entity =>
+            modelBuilder.Entity<Empire>(entity =>
             {
                 entity.ToTable("empires");
 
@@ -149,7 +149,7 @@ namespace DbTableEditor.WPF
                     .HasConstraintName("empires_government_types_id_fk");
             });
 
-            modelBuilder.Entity<Fleets>(entity =>
+            modelBuilder.Entity<Fleet>(entity =>
             {
                 entity.ToTable("fleets");
 
@@ -174,7 +174,7 @@ namespace DbTableEditor.WPF
 
                 entity.HasOne(d => d.Commander)
                     .WithOne(p => p.Fleets)
-                    .HasForeignKey<Fleets>(d => d.CommanderId)
+                    .HasForeignKey<Fleet>(d => d.CommanderId)
                     .HasConstraintName("fleets_commanders_id_fk");
 
                 entity.HasOne(d => d.Status)
@@ -184,7 +184,7 @@ namespace DbTableEditor.WPF
                     .HasConstraintName("fleets___fk");
             });
 
-            modelBuilder.Entity<GovernmentTypes>(entity =>
+            modelBuilder.Entity<GovernmentType>(entity =>
             {
                 entity.ToTable("government_types");
 
@@ -200,7 +200,7 @@ namespace DbTableEditor.WPF
                     .HasColumnType("character varying");
             });
 
-            modelBuilder.Entity<Planets>(entity =>
+            modelBuilder.Entity<Planet>(entity =>
             {
                 entity.ToTable("planets");
 
@@ -239,7 +239,7 @@ namespace DbTableEditor.WPF
                     .HasConstraintName("planets_stars_id_fk");
             });
 
-            modelBuilder.Entity<Ranks>(entity =>
+            modelBuilder.Entity<Rank>(entity =>
             {
                 entity.ToTable("ranks");
 
@@ -255,7 +255,7 @@ namespace DbTableEditor.WPF
                     .HasColumnType("character varying");
             });
 
-            modelBuilder.Entity<Shipyards>(entity =>
+            modelBuilder.Entity<Shipyard>(entity =>
             {
                 entity.ToTable("shipyards");
 
@@ -282,12 +282,12 @@ namespace DbTableEditor.WPF
 
                 entity.HasOne(d => d.Planet)
                     .WithOne(p => p.Shipyards)
-                    .HasForeignKey<Shipyards>(d => d.PlanetId)
+                    .HasForeignKey<Shipyard>(d => d.PlanetId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("shipyards_planets_id_fk");
             });
 
-            modelBuilder.Entity<Spaceships>(entity =>
+            modelBuilder.Entity<Spaceship>(entity =>
             {
                 entity.ToTable("spaceships");
 
@@ -335,7 +335,7 @@ namespace DbTableEditor.WPF
                     .HasConstraintName("spaceships_shipyards_id_fk");
             });
 
-            modelBuilder.Entity<StarTypes>(entity =>
+            modelBuilder.Entity<StarType>(entity =>
             {
                 entity.ToTable("star_types");
 
@@ -351,7 +351,7 @@ namespace DbTableEditor.WPF
                     .HasColumnType("character varying");
             });
 
-            modelBuilder.Entity<Stars>(entity =>
+            modelBuilder.Entity<Star>(entity =>
             {
                 entity.ToTable("stars");
 
