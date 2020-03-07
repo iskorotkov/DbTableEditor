@@ -1,0 +1,39 @@
+﻿<Window x:Class="DbTableEditor.WPF.SpaceshipsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DbTableEditor.WPF"
+        mc:Ignorable="d"
+        Title="Spaceships"
+        Height="450"
+        Width="800">
+    <Grid>
+        <DataGrid Name="Grid"
+                  ItemsSource="{Binding}"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Id}"
+                                    Visibility="Collapsed" />
+                <DataGridTextColumn Binding="{Binding Name}"
+                                    Header="Name" />
+                <DataGridTextColumn Binding="{Binding Speed}"
+                                    Header="Speed" />
+                <DataGridTextColumn Binding="{Binding Capacity}"
+                                    Header="Capacity" />
+                <DataGridTextColumn Binding="{Binding Weight}"
+                                    Header="Weight" />
+                <DataGridTextColumn Binding="{Binding Energy}"
+                                    Header="Energy" />
+                <DataGridTextColumn Binding="{Binding Firepower}"
+                                    Header="Firepower" />
+                <DataGridTextColumn Binding="{Binding Hull}"
+                                    Header="Hull" />
+                <DataGridTextColumn Binding="{Binding Staff}"
+                                    Header="Staff" />
+                <DataGridTextColumn Binding="{Binding Fuel}"
+                                    Header="Fuel" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
