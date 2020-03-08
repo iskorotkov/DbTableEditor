@@ -1,5 +1,6 @@
 ﻿using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
@@ -25,6 +26,8 @@ namespace DbTableEditor.WPF
             var c = new Context();
             using var context = new SpaceshipsContext();
             c.Spaceships = context.Spaceships
+                .Include(e => e.Fleet)
+                .Include(e => e.Shipyard)
                 .OrderBy(s => s.Id)
                 .ToList();
             c.Fleets = context.Fleets
@@ -62,8 +65,6 @@ namespace DbTableEditor.WPF
             {
                 // Creating new
                 context.Spaceships.Add(spaceship);
-                spaceship.FleetId = 1;
-                spaceship.ShipyardId = 1;
             }
 
             CommitRowEdit();
@@ -92,7 +93,6 @@ namespace DbTableEditor.WPF
         private class Context
         {
             public List<Spaceship> Spaceships { get; set; }
-
             public List<Fleet> Fleets { get; set; }
             public List<Shipyard> Shipyards { get; set; }
         }

@@ -1,17 +1,17 @@
 ﻿<Page x:Class="DbTableEditor.WPF.SpaceshipsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:DbTableEditor.WPF"
-      xmlns:converters="clr-namespace:DbTableEditor.WPF.Converters"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="SpaceshipsPage">
 
     <Page.Resources>
-        <converters:FleetsConverter x:Key="FleetsConverter" />
-        <converters:ShipyardsConverter x:Key="ShipyardsConverter" />
+        <CollectionViewSource x:Key="Fleets"
+                              Source="{Binding Fleets}" />
+        <CollectionViewSource x:Key="Shipyards"
+                              Source="{Binding Shipyards}" />
     </Page.Resources>
 
     <Grid>
@@ -42,31 +42,13 @@
                 <DataGridTextColumn Binding="{Binding Fuel, Mode=TwoWay}"
                                     Header="Fuel" />
 
-                <DataGridTemplateColumn Header="Fleets">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ComboBox ItemsSource="{Binding DataContext.Fleets, Converter={StaticResource FleetsConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                    <DataGridTemplateColumn.CellEditingTemplate>
-                        <DataTemplate>
-                            <ComboBox ItemsSource="{Binding DataContext.Fleets, Converter={StaticResource FleetsConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellEditingTemplate>
-                </DataGridTemplateColumn>
+                <DataGridComboBoxColumn Header="Fleet"
+                                        ItemsSource="{Binding Source={StaticResource Fleets}}"
+                                        SelectedValueBinding="{Binding Fleet, Mode=TwoWay}" />
 
-                <DataGridTemplateColumn Header="Shipyard">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ComboBox ItemsSource="{Binding DataContext.Shipyards, Converter={StaticResource ShipyardsConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                    <DataGridTemplateColumn.CellEditingTemplate>
-                        <DataTemplate>
-                            <ComboBox ItemsSource="{Binding DataContext.Shipyards, Converter={StaticResource ShipyardsConverter}, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellEditingTemplate>
-                </DataGridTemplateColumn>
+                <DataGridComboBoxColumn Header="Shipyard"
+                                        ItemsSource="{Binding Source={StaticResource Shipyards}}"
+                                        SelectedItemBinding="{Binding Shipyard, Mode=TwoWay}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
