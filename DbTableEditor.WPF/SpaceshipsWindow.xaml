@@ -11,6 +11,8 @@
     <Grid>
         <DataGrid Name="Grid"
                   ItemsSource="{Binding}"
+                  RowEditEnding="GridOnRowEditEnding" 
+                  PreviewKeyDown="GridOnPreviewKeyDown"
                   AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Id}"

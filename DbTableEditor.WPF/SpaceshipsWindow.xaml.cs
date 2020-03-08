@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
 
@@ -14,8 +15,14 @@ namespace DbTableEditor.WPF
         {
             InitializeComponent();
             SetupGrid();
+        }
 
-            Grid.RowEditEnding += GridOnRowEditEnding;
+        private void SetupGrid()
+        {
+            using var context = new SpaceshipsContext();
+            Grid.DataContext = context.Spaceships
+                .OrderBy(s => s.Id)
+                .ToList();
         }
 
         private void CommitRowEdit()
@@ -54,12 +61,23 @@ namespace DbTableEditor.WPF
             context.SaveChanges();
         }
 
-        private void SetupGrid()
+        private void GridOnPreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key != Key.Delete)
+            {
+                return;
+            }
+
+            var grid = (DataGrid) sender;
+            if (grid.SelectedItems.Count <= 0)
+            {
+                return;
+            }
+
+            var selected = grid.SelectedItems.Cast<Spaceship>();
             using var context = new SpaceshipsContext();
-            Grid.DataContext = context.Spaceships
-                .OrderBy(s => s.Id)
-                .ToList();
+            context.RemoveRange(selected);
+            context.SaveChanges();
         }
     }
 }
