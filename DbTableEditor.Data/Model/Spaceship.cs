@@ -16,5 +16,10 @@
         public int Speed { get; set; }
         public int Staff { get; set; }
         public int Weight { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

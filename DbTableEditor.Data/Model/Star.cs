@@ -16,5 +16,10 @@ namespace DbTableEditor.Data.Model
         public int Size { get; set; }
         public virtual StarType Type { get; set; }
         public int TypeId { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
