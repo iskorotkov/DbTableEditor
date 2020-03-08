@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using DbTableEditor.WPF.Context;
-using DbTableEditor.WPF.Model;
+using DbTableEditor.Data.Context;
+using DbTableEditor.Data.Model;
 
 namespace DbTableEditor.WPF
 {

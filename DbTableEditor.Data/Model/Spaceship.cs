@@ -1,4 +1,4 @@
-﻿namespace DbTableEditor.WPF.Model
+﻿namespace DbTableEditor.Data.Model
 {
     public partial class Spaceship
     {

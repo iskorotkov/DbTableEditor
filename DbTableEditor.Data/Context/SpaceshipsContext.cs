@@ -1,8 +1,8 @@
 ﻿using System;
-using DbTableEditor.WPF.Model;
+using DbTableEditor.Data.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace DbTableEditor.WPF.Context
+namespace DbTableEditor.Data.Context
 {
     public partial class SpaceshipsContext : DbContext
     {

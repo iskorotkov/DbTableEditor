@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DbTableEditor.WPF.Model
+namespace DbTableEditor.Data.Model
 {
     public partial class Alliance
     {
