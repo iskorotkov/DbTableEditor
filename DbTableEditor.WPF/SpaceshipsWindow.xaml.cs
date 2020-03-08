@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,10 +20,18 @@ namespace DbTableEditor.WPF
 
         private void SetupGrid()
         {
+            var c = new Context();
             using var context = new SpaceshipsContext();
-            Grid.DataContext = context.Spaceships
+            c.Spaceships = context.Spaceships
                 .OrderBy(s => s.Id)
                 .ToList();
+            c.Fleets = context.Fleets
+                .OrderBy(f => f.Id)
+                .ToList();
+            c.Shipyards = context.Shipyards
+                .OrderBy(s => s.Id)
+                .ToList();
+            DataContext = c;
         }
 
         private void CommitRowEdit()
@@ -51,8 +60,6 @@ namespace DbTableEditor.WPF
             {
                 // Creating new
                 context.Spaceships.Add(spaceship);
-
-                // TODO: set real fleet and shipyard IDs
                 spaceship.FleetId = 1;
                 spaceship.ShipyardId = 1;
             }
@@ -68,7 +75,7 @@ namespace DbTableEditor.WPF
                 return;
             }
 
-            var grid = (DataGrid) sender;
+            var grid = (DataGrid)sender;
             if (grid.SelectedItems.Count <= 0)
             {
                 return;
@@ -78,6 +85,14 @@ namespace DbTableEditor.WPF
             using var context = new SpaceshipsContext();
             context.RemoveRange(selected);
             context.SaveChanges();
+        }
+
+        private class Context
+        {
+            public List<Spaceship> Spaceships { get; set; }
+
+            public List<Fleet> Fleets { get; set; }
+            public List<Shipyard> Shipyards { get; set; }
         }
     }
 }
