@@ -48,7 +48,7 @@ namespace DbTableEditor.WPF
 
             var (fleet, shipyard) = (spaceship.Fleet, spaceship.Shipyard);
             (spaceship.Shipyard, spaceship.Fleet) = (null, null);
-            (spaceship.FleetId, spaceship.ShipyardId) = (fleet.Id, shipyard.Id);
+            (spaceship.FleetId, spaceship.ShipyardId) = (fleet?.Id ?? 0, shipyard?.Id ?? 0);
 
             using (var context = new SpaceshipsContext())
             {

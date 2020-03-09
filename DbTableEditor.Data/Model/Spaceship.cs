@@ -15,6 +15,7 @@ namespace DbTableEditor.Data.Model
 
         public virtual Fleet Fleet { get; set; }
 
+        [ValidId]
         public int FleetId { get; set; }
 
         [Range(0, int.MaxValue)]
@@ -30,6 +31,7 @@ namespace DbTableEditor.Data.Model
 
         public virtual Shipyard Shipyard { get; set; }
 
+        [ValidId]
         public int ShipyardId { get; set; }
 
         [Range(0, int.MaxValue)]
