@@ -1,6 +1,9 @@
-﻿using System;
-using DbTableEditor.Data.Model;
+﻿using DbTableEditor.Data.Model;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace DbTableEditor.Data.Context
 {
@@ -16,18 +19,52 @@ namespace DbTableEditor.Data.Context
         }
 
         public virtual DbSet<Alliance> Alliances { get; set; }
+
         public virtual DbSet<AlliancesEntry> AlliancesEntries { get; set; }
+
         public virtual DbSet<Commander> Commanders { get; set; }
+
         public virtual DbSet<Empire> Empires { get; set; }
+
         public virtual DbSet<Fleet> Fleets { get; set; }
+
         public virtual DbSet<GovernmentType> GovernmentTypes { get; set; }
+
         public virtual DbSet<Planet> Planets { get; set; }
+
         public virtual DbSet<Rank> Ranks { get; set; }
+
         public virtual DbSet<Shipyard> Shipyards { get; set; }
+
         public virtual DbSet<Spaceship> Spaceships { get; set; }
+
         public virtual DbSet<StarType> StarTypes { get; set; }
+
         public virtual DbSet<Star> Stars { get; set; }
+
         public virtual DbSet<Statuses> Statuses { get; set; }
+
+        public override int SaveChanges()
+        {
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e => e.State == EntityState.Added ||
+                            e.State == EntityState.Modified);
+
+            var errors = new List<ValidationResult>();
+            foreach (var e in entries)
+            {
+                var ctx = new ValidationContext(e.Entity);
+                Validator.TryValidateObject(e.Entity, ctx, errors, validateAllProperties: true);
+            }
+
+            if (errors.Count > 0)
+            {
+                throw new Exceptions.ValidationException(errors);
+            }
+
+            return base.SaveChanges();
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -63,7 +100,7 @@ namespace DbTableEditor.Data.Context
             {
                 entity.ToTable("alliances_entries");
 
-                entity.HasIndex(e => new {e.AllianceId, e.EmpireId})
+                entity.HasIndex(e => new { e.AllianceId, e.EmpireId })
                     .HasName("alliance_entries_alliance_id_empire_id_uindex")
                     .IsUnique();
 

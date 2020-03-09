@@ -1,8 +1,11 @@
 ﻿using DbTableEditor.Data.Context;
+using DbTableEditor.Data.Exceptions;
 using DbTableEditor.Data.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -68,7 +71,14 @@ namespace DbTableEditor.WPF
             }
 
             CommitRowEdit();
-            context.SaveChanges();
+            try
+            {
+                context.SaveChanges();
+            }
+            catch (ValidationException ex)
+            {
+                MessageBox.Show("Message", "Title", MessageBoxButton.OKCancel, MessageBoxImage.Error, MessageBoxResult.OK);
+            }
         }
 
         private void GridOnPreviewKeyDown(object sender, KeyEventArgs e)
