@@ -13,7 +13,6 @@ namespace DbTableEditor.Data.Model
         [Range(0, int.MaxValue)]
         public int Firepower { get; set; }
 
-        [Required]
         public virtual Fleet Fleet { get; set; }
 
         public int FleetId { get; set; }
@@ -29,7 +28,6 @@ namespace DbTableEditor.Data.Model
         [Required]
         public string Name { get; set; }
 
-        [Required]
         public virtual Shipyard Shipyard { get; set; }
 
         public int ShipyardId { get; set; }

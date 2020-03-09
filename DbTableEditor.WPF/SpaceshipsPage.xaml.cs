@@ -3,8 +3,8 @@ using DbTableEditor.Data.Exceptions;
 using DbTableEditor.Data.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,8 +16,6 @@ namespace DbTableEditor.WPF
     /// </summary>
     public partial class SpaceshipsPage : Page
     {
-        private bool _rowCommiting;
-
         public SpaceshipsPage()
         {
             InitializeComponent();
@@ -26,58 +24,60 @@ namespace DbTableEditor.WPF
 
         private void SetupGrid()
         {
-            var c = new Context();
-            using var context = new SpaceshipsContext();
-            c.Spaceships = context.Spaceships
-                .Include(e => e.Fleet)
-                .Include(e => e.Shipyard)
-                .OrderBy(s => s.Id)
-                .ToList();
-            c.Fleets = context.Fleets
-                .OrderBy(f => f.Id)
-                .ToList();
-            c.Shipyards = context.Shipyards
-                .OrderBy(s => s.Id)
-                .ToList();
-            DataContext = c;
-        }
-
-        private void CommitRowEdit()
-        {
-            _rowCommiting = true;
-            Grid.CommitEdit();
-            _rowCommiting = false;
+            var ctx = new Context();
+            using (var context = new SpaceshipsContext())
+            {
+                ctx.Spaceships = context.Spaceships
+                    .Include(e => e.Fleet)
+                    .Include(e => e.Shipyard)
+                    .OrderBy(s => s.Id)
+                    .ToList();
+                ctx.Fleets = context.Fleets
+                    .OrderBy(f => f.Id)
+                    .ToList();
+                ctx.Shipyards = context.Shipyards
+                    .OrderBy(s => s.Id)
+                    .ToList();
+            }
+            DataContext = ctx;
         }
 
         private void GridOnRowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
-            if (_rowCommiting)
-            {
-                return;
-            }
-
             var spaceship = (Spaceship)e.Row.Item;
-            using var context = new SpaceshipsContext();
 
-            if (context.Spaceships.Any(s => s.Id == spaceship.Id))
-            {
-                // Updating
-                context.Attach(spaceship);
-            }
-            else
-            {
-                // Creating new
-                context.Spaceships.Add(spaceship);
-            }
+            var (fleet, shipyard) = (spaceship.Fleet, spaceship.Shipyard);
+            (spaceship.Shipyard, spaceship.Fleet) = (null, null);
+            (spaceship.FleetId, spaceship.ShipyardId) = (fleet.Id, shipyard.Id);
 
-            CommitRowEdit();
-            try
+            using (var context = new SpaceshipsContext())
             {
-                context.SaveChanges();
-            }
-            catch (ValidationException ex)
-            {
-                MessageBox.Show("Message", "Title", MessageBoxButton.OKCancel, MessageBoxImage.Error, MessageBoxResult.OK);
+                if (context.Spaceships.Any(s => s.Id == spaceship.Id))
+                {
+                    context.Attach(spaceship); // Updating
+                }
+                else
+                {
+                    context.Add(spaceship); // Creating new
+                }
+
+                try
+                {
+                    context.SaveChanges();
+                    (spaceship.Fleet, spaceship.Shipyard) = (fleet, shipyard);
+                }
+                catch (ValidationException ex)
+                {
+                    e.Cancel = true;
+                    var builder = new StringBuilder();
+                    foreach (var m in ex.Errors.Select(e => e.ErrorMessage))
+                    {
+                        builder.Append("\n- ");
+                        builder.Append(m);
+                    }
+                    MessageBox.Show(builder.ToString(), ex.Message, MessageBoxButton.OKCancel,
+                        MessageBoxImage.Error, MessageBoxResult.OK);
+                }
             }
         }
 
@@ -95,9 +95,11 @@ namespace DbTableEditor.WPF
             }
 
             var selected = grid.SelectedItems.Cast<Spaceship>();
-            using var context = new SpaceshipsContext();
-            context.RemoveRange(selected);
-            context.SaveChanges();
+            using (var context = new SpaceshipsContext())
+            {
+                context.RemoveRange(selected);
+                context.SaveChanges();
+            }
         }
 
         private class Context

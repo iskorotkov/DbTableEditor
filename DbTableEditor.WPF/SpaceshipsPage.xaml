@@ -3,9 +3,10 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="SpaceshipsPage">
+      mc:Ignorable="d"
+      d:DesignHeight="450"
+      d:DesignWidth="800"
+      Title="Spaceships">
 
     <Page.Resources>
         <CollectionViewSource x:Key="Fleets"
@@ -23,32 +24,32 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Id}"
                                     Visibility="Collapsed" />
-                <DataGridTextColumn Binding="{Binding Name, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Name" />
-                <DataGridTextColumn Binding="{Binding Speed, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Speed, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Speed" />
-                <DataGridTextColumn Binding="{Binding Capacity, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Capacity" />
-                <DataGridTextColumn Binding="{Binding Weight, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Weight, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Weight" />
-                <DataGridTextColumn Binding="{Binding Energy, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Energy, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Energy" />
-                <DataGridTextColumn Binding="{Binding Firepower, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Firepower, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Firepower" />
-                <DataGridTextColumn Binding="{Binding Hull, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Hull, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Hull" />
-                <DataGridTextColumn Binding="{Binding Staff, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Staff, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Staff" />
-                <DataGridTextColumn Binding="{Binding Fuel, Mode=TwoWay}"
+                <DataGridTextColumn Binding="{Binding Fuel, UpdateSourceTrigger=PropertyChanged}"
                                     Header="Fuel" />
 
                 <DataGridComboBoxColumn Header="Fleet"
                                         ItemsSource="{Binding Source={StaticResource Fleets}}"
-                                        SelectedValueBinding="{Binding Fleet, Mode=TwoWay}" />
+                                        SelectedValueBinding="{Binding Fleet, UpdateSourceTrigger=PropertyChanged}" />
 
                 <DataGridComboBoxColumn Header="Shipyard"
                                         ItemsSource="{Binding Source={StaticResource Shipyards}}"
-                                        SelectedItemBinding="{Binding Shipyard, Mode=TwoWay}" />
+                                        SelectedItemBinding="{Binding Shipyard, UpdateSourceTrigger=PropertyChanged}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
