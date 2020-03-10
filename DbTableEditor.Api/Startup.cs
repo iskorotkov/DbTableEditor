@@ -1,3 +1,4 @@
+using DbTableEditor.Data.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -20,6 +21,8 @@ namespace DbTableEditor.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<SpaceshipsContext>();
+
             services.AddMvc();
             services.AddResponseCompression(options =>
             {
@@ -34,7 +37,6 @@ namespace DbTableEditor.Api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
                 app.UseBlazorDebugging();
             }
 

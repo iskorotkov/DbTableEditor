@@ -1,5 +1,5 @@
 ﻿@page "/spaceships"
-@inject SpaceshipsProvider _provider
+@inject HttpClient Http
 
 <h3>Spaceships Table</h3>
 
@@ -38,10 +38,10 @@ else
 }
 
 @code {
-    private List<Spaceship> _spaceships { get; set; }
+    private IEnumerable<Spaceship> _spaceships { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        _spaceships = _provider.LoadAll().ToList();
+        _spaceships = await Http.GetJsonAsync<IEnumerable<Spaceship>>("api/Spaceships");
     }
 }

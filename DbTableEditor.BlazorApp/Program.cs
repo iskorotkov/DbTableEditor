@@ -1,8 +1,5 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Blazor.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using DbTableEditor.Data.Context;
-using DbTableEditor.BlazorApp.Data;
+﻿using Microsoft.AspNetCore.Blazor.Hosting;
+using System.Threading.Tasks;
 
 namespace DbTableEditor.BlazorApp
 {
@@ -12,10 +9,6 @@ namespace DbTableEditor.BlazorApp
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
-
-            builder.Services.AddDbContext<SpaceshipsContext>();
-            builder.Services.AddScoped<SpaceshipsProvider>();
-
             await builder.Build().RunAsync();
         }
     }
