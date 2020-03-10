@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DbTableEditor.Data\DbTableEditor.Data.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,47 @@
+﻿@page "/spaceships"
+@inject SpaceshipsProvider _provider
+
+<h3>Spaceships Table</h3>
+
+@if (_spaceships == null)
+{
+    <span>Wait...</span>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Capacity</th>
+                <th>Energy</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ship in _spaceships)
+            {
+                var s = ship;
+                <tr>
+                    <td>
+                        <input type="text" @bind="s.Name" />
+                    </td>
+                    <td>
+                        <input type="number" @bind="s.Capacity" />
+                    </td>
+                    <td>
+                        <input type="number" @bind="s.Energy" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Spaceship> _spaceships { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _spaceships = _provider.LoadAll().ToList();
+    }
+}
