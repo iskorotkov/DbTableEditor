@@ -66,11 +66,13 @@ else
                 <EditForm class="divTableRow" EditContext="@c"
                           @onfocusout="@(async () => await SubmitChanges(s, c))">
                     <DataAnnotationsValidator />
+
                     <div class="divTableCell">
-                        <button class="btn btn-link"@onclick="@(async () => await Remove(s, c))">
+                        <button class="btn btn-link" @onclick="@(async () => await Remove(s, c))">
                             Remove
                         </button>
                     </div>
+
                     <div class="divTableCell">
                         <InputText @bind-Value="s.Name" />
                         <ValidationMessage For="@(() => s.Name)" />
@@ -116,8 +118,15 @@ else
                         Shipyard: @s.ShipyardId
                         <ValidationMessage For="@(() => s.ShipyardId)" />
                     </div>
-            </EditForm>
+                </EditForm>
             }
+            <div class="divTableRow">
+                <div class="divTableCell">
+                    <button class="btn btn-link" @onclick="Create">
+                        Create
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 }
@@ -134,6 +143,14 @@ else
             .OrderBy(s => s.Id)
             .Select<Spaceship, (Spaceship, EditContext)>(s => (s, new EditContext(s)))
             .ToList();
+    }
+
+    private void Create()
+    {
+        var ship = new Spaceship();
+        var ctx = new EditContext(ship);
+        Spaceships.Add((ship, ctx));
+        StateHasChanged();
     }
 
     private async Task Remove(Spaceship ship, EditContext ctx)
