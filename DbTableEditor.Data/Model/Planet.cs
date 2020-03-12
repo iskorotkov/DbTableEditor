@@ -13,5 +13,10 @@
         public int Size { get; set; }
         public virtual Star Star { get; set; }
         public int StarId { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

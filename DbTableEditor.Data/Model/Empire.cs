@@ -18,5 +18,10 @@ namespace DbTableEditor.Data.Model
         public virtual ICollection<Planet> Planets { get; set; }
         public int Power { get; set; }
         public string Ruler { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

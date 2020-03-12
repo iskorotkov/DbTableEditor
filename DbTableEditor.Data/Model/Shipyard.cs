@@ -16,5 +16,10 @@ namespace DbTableEditor.Data.Model
         public int PlanetId { get; set; }
         public virtual ICollection<Spaceship> Spaceships { get; set; }
         public int Staff { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
