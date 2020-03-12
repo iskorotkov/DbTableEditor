@@ -44,6 +44,7 @@ else
     <div class="divTable">
         <div class="divTableHeading">
             <div class="divTableRow">
+                <div class="divTableHead"></div>
                 <div class="divTableHead">Name</div>
                 <div class="divTableHead">Capacity</div>
                 <div class="divTableHead">Energy</div>
@@ -62,8 +63,14 @@ else
             {
                 var s = ship;
                 var c = ctx;
-                <EditForm class="divTableRow" EditContext="@c" @onfocusout="@(() => SubmitChanges(s, c))">
+                <EditForm class="divTableRow" EditContext="@c"
+                          @onfocusout="@(async () => await SubmitChanges(s, c))">
                     <DataAnnotationsValidator />
+                    <div class="divTableCell">
+                        <button class="btn btn-link"@onclick="@(async () => await Remove(s, c))">
+                            Remove
+                        </button>
+                    </div>
                     <div class="divTableCell">
                         <InputText @bind-Value="s.Name" />
                         <ValidationMessage For="@(() => s.Name)" />
@@ -109,7 +116,7 @@ else
                         Shipyard: @s.ShipyardId
                         <ValidationMessage For="@(() => s.ShipyardId)" />
                     </div>
-                </EditForm>
+            </EditForm>
             }
         </div>
     </div>
@@ -127,6 +134,16 @@ else
             .OrderBy(s => s.Id)
             .Select<Spaceship, (Spaceship, EditContext)>(s => (s, new EditContext(s)))
             .ToList();
+    }
+
+    private async Task Remove(Spaceship ship, EditContext ctx)
+    {
+        Spaceships.Remove((ship, ctx));
+        StateHasChanged();
+        if (ship.Id != 0)
+        {
+            await Http.DeleteAsync($"api/spaceships/{ship.Id}");
+        }
     }
 
     private async Task SubmitChanges(Spaceship ship, EditContext ctx)
