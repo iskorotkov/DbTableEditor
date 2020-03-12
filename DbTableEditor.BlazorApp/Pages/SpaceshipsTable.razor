@@ -19,7 +19,6 @@ else
     <table>
         <thead>
             <tr>
-                <th></th>
                 <th>Name</th>
                 <th>Capacity</th>
                 <th>Energy</th>
@@ -34,16 +33,10 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var (ship, dirty) in Spaceships)
+            @foreach (var ship in Spaceships)
             {
                 var s = ship;
-                <tr>
-                    <td>
-                        @if (dirty)
-                        {
-                            <button>Save</button>
-                        }
-                    </td>
+                <tr @onfocusout="@(() => SubmitChanges(s))">
                     <td><input type="text" @bind="s.Name" /></td>
                     <td><input type="number" @bind="s.Capacity" /></td>
                     <td><input type="number" @bind="s.Energy" /></td>
@@ -62,17 +55,25 @@ else
 }
 
 @code {
-    private List<(Spaceship Ship, bool Dirty)> Spaceships { get; set; }
+    private List<Spaceship> Spaceships { get; set; }
+
+    private Spaceship Selected { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var result = await Http.GetJsonAsync<IEnumerable<Spaceship>>("api/Spaceships");
-        Spaceships = result.Select(s => (s, false)).ToList();
+        Spaceships = result.OrderBy(s => s.Id).ToList();
     }
 
-    private void MarkDirty(Spaceship ship, bool value = true)
+    private async Task SubmitChanges(Spaceship ship)
     {
-        var entry = Spaceships.First(e => e.Ship == ship);
-        entry.Dirty = value;
+        if (ship.Id == 0)
+        {
+            Selected = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship);
+        }
+        else
+        {
+            await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship);
+        }
     }
 }
