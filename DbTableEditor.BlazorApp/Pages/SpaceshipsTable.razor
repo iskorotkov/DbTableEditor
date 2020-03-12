@@ -3,34 +3,58 @@
 
 <h3>Spaceships Table</h3>
 
-@if (_spaceships == null)
+<style>
+    thead, tbody, tr, th, td, input {
+        padding: 0;
+        margin: 0;
+    }
+</style>
+
+@if (Spaceships == null)
 {
-    <span>Wait...</span>
+    <span>Loading data...</span>
 }
 else
 {
     <table>
         <thead>
             <tr>
+                <th></th>
                 <th>Name</th>
                 <th>Capacity</th>
                 <th>Energy</th>
+                <th>Firepower</th>
+                <th>Fuel</th>
+                <th>Hull</th>
+                <th>Speed</th>
+                <th>Staff</th>
+                <th>Weight</th>
+                <th>Fleet</th>
+                <th>Shipyard</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var ship in _spaceships)
+            @foreach (var (ship, dirty) in Spaceships)
             {
                 var s = ship;
                 <tr>
                     <td>
-                        <input type="text" @bind="s.Name" />
+                        @if (dirty)
+                        {
+                            <button>Save</button>
+                        }
                     </td>
-                    <td>
-                        <input type="number" @bind="s.Capacity" />
-                    </td>
-                    <td>
-                        <input type="number" @bind="s.Energy" />
-                    </td>
+                    <td><input type="text" @bind="s.Name" /></td>
+                    <td><input type="number" @bind="s.Capacity" /></td>
+                    <td><input type="number" @bind="s.Energy" /></td>
+                    <td><input type="number" @bind="s.Firepower" /></td>
+                    <td><input type="number" @bind="s.Fuel" /></td>
+                    <td><input type="number" @bind="s.Hull" /></td>
+                    <td><input type="number" @bind="s.Speed" /></td>
+                    <td><input type="number" @bind="s.Staff" /></td>
+                    <td><input type="number" @bind="s.Weight" /></td>
+                    <td>Fleet: @s.FleetId</td>
+                    <td>Shipyard: @s.ShipyardId</td>
                 </tr>
             }
         </tbody>
@@ -38,10 +62,17 @@ else
 }
 
 @code {
-    private IEnumerable<Spaceship> _spaceships { get; set; }
+    private List<(Spaceship Ship, bool Dirty)> Spaceships { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        _spaceships = await Http.GetJsonAsync<IEnumerable<Spaceship>>("api/Spaceships");
+        var result = await Http.GetJsonAsync<IEnumerable<Spaceship>>("api/Spaceships");
+        Spaceships = result.Select(s => (s, false)).ToList();
+    }
+
+    private void MarkDirty(Spaceship ship, bool value = true)
+    {
+        var entry = Spaceships.First(e => e.Ship == ship);
+        entry.Dirty = value;
     }
 }
