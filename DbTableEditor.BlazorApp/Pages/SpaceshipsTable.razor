@@ -4,9 +4,34 @@
 <h3>Spaceships Table</h3>
 
 <style>
-    thead, tbody, tr, th, td, input {
-        padding: 0;
-        margin: 0;
+    /* DivTable.com */
+    .divTable {
+        display: table;
+        width: 100%;
+    }
+
+    .divTableRow {
+        display: table-row;
+    }
+
+    .divTableCell, .divTableHead {
+        display: table-cell;
+    }
+
+    .divTableHeading {
+        background-color: #EEE;
+        display: table-header-group;
+        font-weight: bold;
+    }
+
+    .divTableFoot {
+        background-color: #EEE;
+        display: table-footer-group;
+        font-weight: bold;
+    }
+
+    .divTableBody {
+        display: table-row-group;
     }
 </style>
 
@@ -16,46 +41,82 @@
 }
 else
 {
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Capacity</th>
-                <th>Energy</th>
-                <th>Firepower</th>
-                <th>Fuel</th>
-                <th>Hull</th>
-                <th>Speed</th>
-                <th>Staff</th>
-                <th>Weight</th>
-                <th>Fleet</th>
-                <th>Shipyard</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="divTable">
+        <div class="divTableHeading">
+            <div class="divTableRow">
+                <div class="divTableHead">Name</div>
+                <div class="divTableHead">Capacity</div>
+                <div class="divTableHead">Energy</div>
+                <div class="divTableHead">Firepower</div>
+                <div class="divTableHead">Fuel</div>
+                <div class="divTableHead">Hull</div>
+                <div class="divTableHead">Speed</div>
+                <div class="divTableHead">Staff</div>
+                <div class="divTableHead">Weight</div>
+                <div class="divTableHead">Fleet</div>
+                <div class="divTableHead">Shipyard</div>
+            </div>
+        </div>
+        <div class="divTableBody">
             @foreach (var ship in Spaceships)
             {
                 var s = ship;
-                <tr @onfocusout="@(() => SubmitChanges(s))">
-                    <td><input type="text" @bind="s.Name" /></td>
-                    <td><input type="number" @bind="s.Capacity" /></td>
-                    <td><input type="number" @bind="s.Energy" /></td>
-                    <td><input type="number" @bind="s.Firepower" /></td>
-                    <td><input type="number" @bind="s.Fuel" /></td>
-                    <td><input type="number" @bind="s.Hull" /></td>
-                    <td><input type="number" @bind="s.Speed" /></td>
-                    <td><input type="number" @bind="s.Staff" /></td>
-                    <td><input type="number" @bind="s.Weight" /></td>
-                    <td>Fleet: @s.FleetId</td>
-                    <td>Shipyard: @s.ShipyardId</td>
-                </tr>
+                <EditForm class="divTableRow" @ref="Form" Model="@s">
+                    <DataAnnotationsValidator />
+                    <div class="divTableCell">
+                        <InputText @bind-Value="s.Name" />
+                        <ValidationMessage For="@(() => s.Name)" />
+                    </div>
+                    <div class="divTableCell">
+                        <InputNumber @bind-Value="s.Capacity" />
+                        <ValidationMessage For="@(() => s.Capacity)" />
+                    </div>
+                    <div class="divTableCell">
+                        <InputNumber @bind-Value="s.Energy" />
+                        <ValidationMessage For="@(() => s.Energy)" />
+                    </div>
+                    <ValidationMessage For="@(() => s.Energy)" />
+                    <div class="divTableCell">
+                        <InputNumber @bind-Value="s.Firepower" />
+                        <ValidationMessage For="@(() => s.Firepower)" />
+                    </div>
+                    <div class="divTableCell">
+                        <InputNumber @bind-Value="s.Fuel" />
+                        <ValidationMessage For="@(() => s.Fuel)" />
+                    </div>
+                    <div class="divTableCell">
+                        <InputNumber @bind-Value="s.Hull" />
+                        <ValidationMessage For="@(() => s.Hull)" />
+                    </div>
+                    <div class="divTableCell">
+                        <InputNumber @bind-Value="s.Speed" />
+                        <ValidationMessage For="@(() => s.Speed)" />
+                    </div>
+                    <div class="divTableCell">
+                        <InputNumber @bind-Value="s.Staff" />
+                        <ValidationMessage For="@(() => s.Staff)" />
+                    </div>
+                    <div class="divTableCell">
+                        <InputNumber @bind-Value="s.Weight" />
+                        <ValidationMessage For="@(() => s.Weight)" />
+                    </div>
+                    <div class="divTableCell">
+                        Fleet: @s.FleetId
+                        <ValidationMessage For="@(() => s.FleetId)" />
+                    </div>
+                    <div class="divTableCell">
+                        Shipyard: @s.ShipyardId
+                        <ValidationMessage For="@(() => s.ShipyardId)" />
+                    </div>
+                </EditForm>
             }
-        </tbody>
-    </table>
+        </div>
+    </div>
 }
 
 @code {
     private List<Spaceship> Spaceships { get; set; }
+    private EditForm Form { get; set; }
 
     private Spaceship Selected { get; set; }
 
