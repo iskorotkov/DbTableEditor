@@ -36,7 +36,6 @@ else
                     <TextCell @bind-Value="@s.Name" />
 
                     <NumberCell @bind-Value="@s.Capacity" />
-                    <NumberCell @bind-Value="@s.Capacity" />
                     <NumberCell @bind-Value="@s.Energy" />
                     <NumberCell @bind-Value="@s.Firepower" />
                     <NumberCell @bind-Value="@s.Fuel" />
@@ -130,17 +129,21 @@ else
             return;
         }
         var ship = (Spaceship)ctx.Model;
-        ctx.MarkAsUnmodified();
-        if (ship.Id == 0)
+        try
         {
-            var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship)
-                .ConfigureAwait(false);
-            ship.Id = created.Id;
+            if (ship.Id == 0)
+            {
+                var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship);
+                ship.Id = created.Id;
+            }
+            else
+            {
+                await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship);
+            }
+            ctx.MarkAsUnmodified();
         }
-        else
+        catch (HttpRequestException)
         {
-            await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship)
-                .ConfigureAwait(false);
         }
     }
 }
