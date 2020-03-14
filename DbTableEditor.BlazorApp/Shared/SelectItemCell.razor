@@ -1,0 +1,31 @@
+﻿@using System.Linq.Expressions
+@typeparam TValue
+
+<div class="divTableCell" @attributes="@AdditionalAttributes">
+    <InputSelectNumber Value="@Value" ValueChanged="@ValueChanged" ValueExpression="ValueExpression">
+        @foreach (var e in Elements)
+        {
+            var elem = e;
+            <option value="@IndexFunc(elem)">@LabelFunc(elem)</option>
+        }
+    </InputSelectNumber>
+    <ValidationMessage For="@ValueExpression" />
+</div>
+
+@code {
+    [CascadingParameter] public EditContext EditContext { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object> AdditionalAttributes { get; set; }
+
+    [Parameter] public int Value { get; set; }
+
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+
+    [Parameter] public Expression<Func<int>> ValueExpression { get; set; }
+
+    [Parameter] public List<TValue> Elements { get; set; }
+
+    [Parameter] public Func<TValue, int> IndexFunc { get; set; }
+
+    [Parameter] public Func<TValue, string> LabelFunc { get; set; }
+}

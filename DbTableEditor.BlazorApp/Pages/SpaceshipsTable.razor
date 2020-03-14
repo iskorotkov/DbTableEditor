@@ -3,38 +3,6 @@
 
 <h3>Spaceships Table</h3>
 
-<style>
-    /* DivTable.com */
-    .divTable {
-        display: table;
-        width: 100%;
-    }
-
-    .divTableRow {
-        display: table-row;
-    }
-
-    .divTableCell, .divTableHead {
-        display: table-cell;
-    }
-
-    .divTableHeading {
-        background-color: #EEE;
-        display: table-header-group;
-        font-weight: bold;
-    }
-
-    .divTableFoot {
-        background-color: #EEE;
-        display: table-footer-group;
-        font-weight: bold;
-    }
-
-    .divTableBody {
-        display: table-row-group;
-    }
-</style>
-
 @if (Spaceships == null)
 {
     <span>Loading data...</span>
@@ -44,18 +12,10 @@ else
     <div class="divTable">
         <div class="divTableHeading">
             <div class="divTableRow">
-                <div class="divTableHead"></div>
-                <div class="divTableHead">Name</div>
-                <div class="divTableHead">Capacity</div>
-                <div class="divTableHead">Energy</div>
-                <div class="divTableHead">Firepower</div>
-                <div class="divTableHead">Fuel</div>
-                <div class="divTableHead">Hull</div>
-                <div class="divTableHead">Speed</div>
-                <div class="divTableHead">Staff</div>
-                <div class="divTableHead">Weight</div>
-                <div class="divTableHead">Fleet</div>
-                <div class="divTableHead">Shipyard</div>
+                @foreach (var column in Columns)
+                {
+                    <div class="divTableHead">@column</div>
+                }
             </div>
         </div>
         <div class="divTableBody">
@@ -73,62 +33,23 @@ else
                         </button>
                     </div>
 
-                    <div class="divTableCell">
-                        <InputText @bind-Value="@s.Name" />
-                        <ValidationMessage For="@(() => s.Name)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputNumber @bind-Value="@s.Capacity" />
-                        <ValidationMessage For="@(() => s.Capacity)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputNumber @bind-Value="@s.Energy" />
-                        <ValidationMessage For="@(() => s.Energy)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputNumber @bind-Value="@s.Firepower" />
-                        <ValidationMessage For="@(() => s.Firepower)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputNumber @bind-Value="@s.Fuel" />
-                        <ValidationMessage For="@(() => s.Fuel)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputNumber @bind-Value="@s.Hull" />
-                        <ValidationMessage For="@(() => s.Hull)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputNumber @bind-Value="@s.Speed" />
-                        <ValidationMessage For="@(() => s.Speed)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputNumber @bind-Value="@s.Staff" />
-                        <ValidationMessage For="@(() => s.Staff)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputNumber @bind-Value="@s.Weight" />
-                        <ValidationMessage For="@(() => s.Weight)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputSelectNumber @bind-Value="@s.FleetId">
-                            @foreach (var f in Fleets)
-                            {
-                                var fleet = f;
-                                <option value="@fleet.Id">@fleet.Name</option>
-                            }
-                        </InputSelectNumber>
-                        <ValidationMessage For="@(() => s.FleetId)" />
-                    </div>
-                    <div class="divTableCell">
-                        <InputSelectNumber @bind-Value="@s.ShipyardId">
-                            @foreach (var s in Shipyards)
-                            {
-                                var shipyard = s;
-                                <option value="@shipyard.Id">@shipyard.Name</option>
-                            }
-                        </InputSelectNumber>
-                        <ValidationMessage For="@(() => s.ShipyardId)" />
-                    </div>
+                    <TextCell @bind-Value="@s.Name" />
+
+                    <NumberCell @bind-Value="@s.Capacity" />
+                    <NumberCell @bind-Value="@s.Capacity" />
+                    <NumberCell @bind-Value="@s.Energy" />
+                    <NumberCell @bind-Value="@s.Firepower" />
+                    <NumberCell @bind-Value="@s.Fuel" />
+                    <NumberCell @bind-Value="@s.Hull" />
+                    <NumberCell @bind-Value="@s.Speed" />
+                    <NumberCell @bind-Value="@s.Staff" />
+                    <NumberCell @bind-Value="@s.Weight" />
+
+                    <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
+                                    IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
+
+                    <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
+                                    IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
                 </TableForm>
             }
             <div class="divTableRow">
@@ -146,6 +67,9 @@ else
     private List<(Spaceship ship, EditContext context)> Spaceships { get; set; }
     private List<Fleet> Fleets { get; set; }
     private List<Shipyard> Shipyards { get; set; }
+
+    private List<string> Columns { get; set; } = new List<string> { "", "Name", "Capacity",
+        "Energy", "Firepower", "Fuel", "Hull", "Speed", "Staff", "Weight", "Fleet", "Shipyard" };
 
     protected override async Task OnInitializedAsync()
     {
