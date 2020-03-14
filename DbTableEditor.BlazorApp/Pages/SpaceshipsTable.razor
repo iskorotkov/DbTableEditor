@@ -111,11 +111,23 @@ else
                         <ValidationMessage For="@(() => s.Weight)" />
                     </div>
                     <div class="divTableCell">
-                        Fleet: @s.FleetId
+                        <InputSelectNumber @bind-Value="@s.FleetId">
+                            @foreach (var f in Fleets)
+                            {
+                                var fleet = f;
+                                <option value="@fleet.Id">@fleet.Name</option>
+                            }
+                        </InputSelectNumber>
                         <ValidationMessage For="@(() => s.FleetId)" />
                     </div>
                     <div class="divTableCell">
-                        Shipyard: @s.ShipyardId
+                        <InputSelectNumber @bind-Value="@s.ShipyardId">
+                            @foreach (var s in Shipyards)
+                            {
+                                var shipyard = s;
+                                <option value="@shipyard.Id">@shipyard.Name</option>
+                            }
+                        </InputSelectNumber>
                         <ValidationMessage For="@(() => s.ShipyardId)" />
                     </div>
                 </EditForm>
@@ -133,12 +145,36 @@ else
 
 @code {
     private List<(Spaceship ship, EditContext context)> Spaceships { get; set; }
-
-    private Spaceship Selected { get; set; }
+    private List<Fleet> Fleets { get; set; }
+    private List<Shipyard> Shipyards { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetJsonAsync<IEnumerable<Spaceship>>("api/Spaceships");
+        await InitFleets();
+        await InitShipyards();
+        await InitSpaceships();
+    }
+
+    private async Task InitFleets()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Fleet>>("api/fleets")
+            .ConfigureAwait(false);
+        Fleets = result.OrderBy(f => f.Id)
+                       .ToList();
+    }
+
+    private async Task InitShipyards()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Shipyard>>("api/shipyards")
+            .ConfigureAwait(false);
+        Shipyards = result.OrderBy(s => s.Id)
+                          .ToList();
+    }
+
+    private async Task InitSpaceships()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Spaceship>>("api/Spaceships")
+            .ConfigureAwait(false);
         Spaceships = result
             .OrderBy(s => s.Id)
             .Select<Spaceship, (Spaceship, EditContext)>(s => (s, new EditContext(s)))
@@ -159,7 +195,8 @@ else
         StateHasChanged();
         if (ship.Id != 0)
         {
-            await Http.DeleteAsync($"api/spaceships/{ship.Id}");
+            await Http.DeleteAsync($"api/spaceships/{ship.Id}")
+                .ConfigureAwait(false);
         }
     }
 
@@ -171,11 +208,14 @@ else
         }
         if (ship.Id == 0)
         {
-            Selected = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship);
+            var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship)
+                .ConfigureAwait(false);
+            ship.Id = created.Id;
         }
         else
         {
-            await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship);
+            await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship)
+                .ConfigureAwait(false);
         }
     }
 }

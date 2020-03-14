@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTableEditor.BlazorApp", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{08C42235-911A-4EC9-9E1E-35FDAADF4449}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbTableEditor.Api", "DbTableEditor.Api\DbTableEditor.Api.csproj", "{262B92A5-52A7-4C1D-B65A-E52F7D63A6FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbTableEditor.Api", "DbTableEditor.Api\DbTableEditor.Api.csproj", "{262B92A5-52A7-4C1D-B65A-E52F7D63A6FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
