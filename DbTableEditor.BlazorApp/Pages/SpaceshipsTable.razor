@@ -63,9 +63,8 @@ else
             {
                 var s = ship;
                 var c = ctx;
-                <EditForm class="divTableRow" EditContext="@c"
-                          OnValidSubmit="@SubmitChanges"
-                          @onfocusout="@(async e => await SubmitChanges(ctx))">
+                <TableForm class="divTableRow" EditContext="@c"
+                           @onfocusout="@(async e => await SubmitChanges(c))">
                     <DataAnnotationsValidator />
 
                     <div class="divTableCell">
@@ -86,7 +85,6 @@ else
                         <InputNumber @bind-Value="@s.Energy" />
                         <ValidationMessage For="@(() => s.Energy)" />
                     </div>
-                    <ValidationMessage For="@(() => s.Energy)" />
                     <div class="divTableCell">
                         <InputNumber @bind-Value="@s.Firepower" />
                         <ValidationMessage For="@(() => s.Firepower)" />
@@ -131,7 +129,7 @@ else
                         </InputSelectNumber>
                         <ValidationMessage For="@(() => s.ShipyardId)" />
                     </div>
-                </EditForm>
+                </TableForm>
             }
             <div class="divTableRow">
                 <div class="divTableCell">
@@ -203,11 +201,12 @@ else
 
     private async Task SubmitChanges(EditContext ctx)
     {
-        if (!ctx.IsModified())
+        if (!ctx.Validate() || !ctx.IsModified())
         {
             return;
         }
         var ship = (Spaceship)ctx.Model;
+        ctx.MarkAsUnmodified();
         if (ship.Id == 0)
         {
             var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship)
