@@ -64,7 +64,8 @@ else
                 var s = ship;
                 var c = ctx;
                 <EditForm class="divTableRow" EditContext="@c"
-                          @onfocusout="@(async () => await SubmitChanges(s, c))">
+                          OnValidSubmit="@SubmitChanges"
+                          @onfocusout="@(async e => await SubmitChanges(ctx))">
                     <DataAnnotationsValidator />
 
                     <div class="divTableCell">
@@ -74,40 +75,40 @@ else
                     </div>
 
                     <div class="divTableCell">
-                        <InputText @bind-Value="s.Name" />
+                        <InputText @bind-Value="@s.Name" />
                         <ValidationMessage For="@(() => s.Name)" />
                     </div>
                     <div class="divTableCell">
-                        <InputNumber @bind-Value="s.Capacity" />
+                        <InputNumber @bind-Value="@s.Capacity" />
                         <ValidationMessage For="@(() => s.Capacity)" />
                     </div>
                     <div class="divTableCell">
-                        <InputNumber @bind-Value="s.Energy" />
+                        <InputNumber @bind-Value="@s.Energy" />
                         <ValidationMessage For="@(() => s.Energy)" />
                     </div>
                     <ValidationMessage For="@(() => s.Energy)" />
                     <div class="divTableCell">
-                        <InputNumber @bind-Value="s.Firepower" />
+                        <InputNumber @bind-Value="@s.Firepower" />
                         <ValidationMessage For="@(() => s.Firepower)" />
                     </div>
                     <div class="divTableCell">
-                        <InputNumber @bind-Value="s.Fuel" />
+                        <InputNumber @bind-Value="@s.Fuel" />
                         <ValidationMessage For="@(() => s.Fuel)" />
                     </div>
                     <div class="divTableCell">
-                        <InputNumber @bind-Value="s.Hull" />
+                        <InputNumber @bind-Value="@s.Hull" />
                         <ValidationMessage For="@(() => s.Hull)" />
                     </div>
                     <div class="divTableCell">
-                        <InputNumber @bind-Value="s.Speed" />
+                        <InputNumber @bind-Value="@s.Speed" />
                         <ValidationMessage For="@(() => s.Speed)" />
                     </div>
                     <div class="divTableCell">
-                        <InputNumber @bind-Value="s.Staff" />
+                        <InputNumber @bind-Value="@s.Staff" />
                         <ValidationMessage For="@(() => s.Staff)" />
                     </div>
                     <div class="divTableCell">
-                        <InputNumber @bind-Value="s.Weight" />
+                        <InputNumber @bind-Value="@s.Weight" />
                         <ValidationMessage For="@(() => s.Weight)" />
                     </div>
                     <div class="divTableCell">
@@ -134,7 +135,7 @@ else
             }
             <div class="divTableRow">
                 <div class="divTableCell">
-                    <button class="btn btn-link" @onclick="Create">
+                    <button class="btn btn-link" @onclick="@Create">
                         Create
                     </button>
                 </div>
@@ -200,12 +201,13 @@ else
         }
     }
 
-    private async Task SubmitChanges(Spaceship ship, EditContext ctx)
+    private async Task SubmitChanges(EditContext ctx)
     {
-        if (!ctx.Validate() || !ctx.IsModified())
+        if (!ctx.IsModified())
         {
             return;
         }
+        var ship = (Spaceship)ctx.Model;
         if (ship.Id == 0)
         {
             var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship)
