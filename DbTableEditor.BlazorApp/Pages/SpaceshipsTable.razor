@@ -19,17 +19,15 @@ else
             </div>
         </div>
         <div class="divTableBody">
-            @foreach (var (ship, ctx) in Spaceships)
+            @foreach (var ship in Spaceships)
             {
                 var s = ship;
-                var c = ctx;
-                <TableForm @key="@s" class="divTableRow" EditContext="@c"
-                           @onsubmit="@(async e => await SubmitChanges(c))"
-                           @onfocusout="@(async e => await SubmitChanges(c))">
+                <TableForm @key="@s" class="divTableRow" Model="@s"
+                           OnValidSubmit="@(ctx => SubmitChanges(ctx))">
                     <DataAnnotationsValidator />
 
                     <div class="divTableCell">
-                        <button class="btn btn-link" @onclick="@(async () => await Remove(s, c))">
+                        <button class="btn btn-link" @onclick="@(() => Remove(s))">
                             Remove
                         </button>
                     </div>
@@ -64,7 +62,7 @@ else
 }
 
 @code {
-    private List<(Spaceship ship, EditContext context)> Spaceships { get; set; }
+    private List<Spaceship> Spaceships { get; set; }
     private List<Fleet> Fleets { get; set; }
     private List<Shipyard> Shipyards { get; set; }
 
@@ -100,21 +98,19 @@ else
             .ConfigureAwait(false);
         Spaceships = result
             .OrderBy(s => s.Id)
-            .Select<Spaceship, (Spaceship, EditContext)>(s => (s, new EditContext(s)))
             .ToList();
     }
 
     private void Create()
     {
         var ship = new Spaceship();
-        var ctx = new EditContext(ship);
-        Spaceships.Add((ship, ctx));
+        Spaceships.Add(ship);
         StateHasChanged();
     }
 
-    private async Task Remove(Spaceship ship, EditContext ctx)
+    private async Task Remove(Spaceship ship)
     {
-        Spaceships.Remove((ship, ctx));
+        Spaceships.Remove(ship);
         if (ship.Id != 0)
         {
             try
@@ -131,7 +127,7 @@ else
 
     private async Task SubmitChanges(EditContext ctx)
     {
-        if (!ctx.Validate() || !ctx.IsModified())
+        if (!ctx.IsModified())
         {
             return;
         }
