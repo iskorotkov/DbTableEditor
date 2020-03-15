@@ -2,7 +2,6 @@
 @using System.Threading.Tasks
 
 <div @attributes="@AdditionalAttributes"
-     @onsubmit="@_handleSubmitDelegate"
      @onfocusout="@_handleSubmitDelegate">
     <CascadingValue Value="@_fixedEditContext" IsFixed="true">
         @ChildContent

@@ -1,34 +1,40 @@
-﻿@using System.Linq.Expressions
-@typeparam TValue
+﻿@typeparam TValue
+@inherits InputBase<int>
 
 <div class="divTableCell" @attributes="@AdditionalAttributes">
-    <InputSelectNumber Value="@Value" ValueChanged="@ValueChanged" ValueExpression="ValueExpression">
+    <select value="@Value" @onchange="@(e => CurrentValueAsString = (string)e.Value)">
         @foreach (var e in Elements)
         {
             var elem = e;
-            <option value="@IndexFunc(elem)">@LabelFunc(elem)</option>
+            <option @key="@elem" value="@IndexFunc(elem)">@LabelFunc(elem)</option>
         }
-    </InputSelectNumber>
+    </select>
     <ValidationMessage For="@ValueExpression" />
     @ChildContent
 </div>
 
 @code {
-    [CascadingParameter] public EditContext EditContext { get; set; }
-
-    [Parameter] public RenderFragment ChildContent { get; set; }
-
-    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object> AdditionalAttributes { get; set; }
-
-    [Parameter] public int Value { get; set; }
-
-    [Parameter] public EventCallback<int> ValueChanged { get; set; }
-
-    [Parameter] public Expression<Func<int>> ValueExpression { get; set; }
-
     [Parameter] public List<TValue> Elements { get; set; }
 
     [Parameter] public Func<TValue, int> IndexFunc { get; set; }
 
     [Parameter] public Func<TValue, string> LabelFunc { get; set; }
+
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    protected override bool TryParseValueFromString(string value, out int result, out string validationErrorMessage)
+    {
+        if (int.TryParse(value, out var num))
+        {
+            result = num;
+            validationErrorMessage = null;
+            return true;
+        }
+        else
+        {
+            result = default;
+            validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not a number.";
+            return false;
+        }
+    }
 }
