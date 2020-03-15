@@ -114,7 +114,6 @@ else
     private async Task Remove(Spaceship ship, EditContext ctx)
     {
         Spaceships.Remove((ship, ctx));
-        StateHasChanged();
         if (ship.Id != 0)
         {
             await Http.DeleteAsync($"api/spaceships/{ship.Id}")
@@ -144,6 +143,8 @@ else
         }
         catch (HttpRequestException)
         {
+            ship.Name = "";
+            ctx.Validate();
         }
     }
 }
