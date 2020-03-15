@@ -16,4 +16,8 @@
     <ProjectReference Include="..\DbTableEditor.Data\DbTableEditor.Data.csproj" />
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
+  </PropertyGroup>
+
 </Project>

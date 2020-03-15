@@ -14,7 +14,7 @@ else
             <div class="divTableRow">
                 @foreach (var column in Columns)
                 {
-                    <div class="divTableHead">@column</div>
+                    <div @key="@column" class="divTableHead">@column</div>
                 }
             </div>
         </div>
@@ -23,7 +23,8 @@ else
             {
                 var s = ship;
                 var c = ctx;
-                <TableForm class="divTableRow" EditContext="@c"
+                <TableForm @key="@s" class="divTableRow" EditContext="@c"
+                           @onsubmit="@(async e => await SubmitChanges(c))"
                            @onfocusout="@(async e => await SubmitChanges(c))">
                     <DataAnnotationsValidator />
 
@@ -116,8 +117,15 @@ else
         Spaceships.Remove((ship, ctx));
         if (ship.Id != 0)
         {
-            await Http.DeleteAsync($"api/spaceships/{ship.Id}")
-                .ConfigureAwait(false);
+            try
+            {
+                await Http.DeleteAsync($"api/spaceships/{ship.Id}")
+                    .ConfigureAwait(false);
+            }
+            catch (HttpRequestException)
+            {
+                // Ignore
+            }
         }
     }
 
