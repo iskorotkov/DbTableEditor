@@ -1,0 +1,154 @@
+﻿@page "/spaceships"
+@inject HttpClient Http
+
+<h3>Spaceships Table</h3>
+
+@if (Spaceships == null)
+{
+    <span>Loading data...</span>
+}
+else
+{
+    <div class="divTable">
+        <div class="divTableHeading">
+            <div class="divTableRow">
+                @foreach (var column in Columns)
+                {
+                    <div @key="@column" class="divTableHead">@column</div>
+                }
+            </div>
+        </div>
+        <div class="divTableBody">
+            @foreach (var ship in Spaceships)
+            {
+                var s = ship;
+                <TableForm @key="@s" class="divTableRow" Model="@s"
+                           OnValidSubmit="@(ctx => SubmitChanges(ctx))">
+                    <DataAnnotationsValidator />
+
+                    <div class="divTableCell">
+                        <button class="btn btn-link" @onclick="@(() => Remove(s))">
+                            Remove
+                        </button>
+                    </div>
+
+                    <TextCell @bind-Value="@s.Name" />
+
+                    <NumberCell @bind-Value="@s.Capacity" />
+                    <NumberCell @bind-Value="@s.Energy" />
+                    <NumberCell @bind-Value="@s.Firepower" />
+                    <NumberCell @bind-Value="@s.Fuel" />
+                    <NumberCell @bind-Value="@s.Hull" />
+                    <NumberCell @bind-Value="@s.Speed" />
+                    <NumberCell @bind-Value="@s.Staff" />
+                    <NumberCell @bind-Value="@s.Weight" />
+
+                    <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
+                                    IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
+
+                    <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
+                                    IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
+                </TableForm>
+            }
+            <div class="divTableRow">
+                <div class="divTableCell">
+                    <button class="btn btn-link" @onclick="@Create">
+                        Create
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Spaceship> Spaceships { get; set; }
+    private List<Fleet> Fleets { get; set; }
+    private List<Shipyard> Shipyards { get; set; }
+
+    private List<string> Columns { get; set; } = new List<string> { "", "Name", "Capacity",
+        "Energy", "Firepower", "Fuel", "Hull", "Speed", "Staff", "Weight", "Fleet", "Shipyard" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InitFleets();
+        await InitShipyards();
+        await InitSpaceships();
+    }
+
+    private async Task InitFleets()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Fleet>>("api/fleets")
+            .ConfigureAwait(false);
+        Fleets = result.OrderBy(f => f.Id)
+                       .ToList();
+    }
+
+    private async Task InitShipyards()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Shipyard>>("api/shipyards")
+            .ConfigureAwait(false);
+        Shipyards = result.OrderBy(s => s.Id)
+                          .ToList();
+    }
+
+    private async Task InitSpaceships()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Spaceship>>("api/Spaceships")
+            .ConfigureAwait(false);
+        Spaceships = result
+            .OrderBy(s => s.Id)
+            .ToList();
+    }
+
+    private void Create()
+    {
+        var ship = new Spaceship();
+        Spaceships.Add(ship);
+        StateHasChanged();
+    }
+
+    private async Task Remove(Spaceship ship)
+    {
+        Spaceships.Remove(ship);
+        if (ship.Id != 0)
+        {
+            try
+            {
+                await Http.DeleteAsync($"api/spaceships/{ship.Id}")
+                    .ConfigureAwait(false);
+            }
+            catch (HttpRequestException)
+            {
+                // Ignore
+            }
+        }
+    }
+
+    private async Task SubmitChanges(EditContext ctx)
+    {
+        if (!ctx.IsModified())
+        {
+            return;
+        }
+        var ship = (Spaceship)ctx.Model;
+        try
+        {
+            if (ship.Id == 0)
+            {
+                var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship);
+                ship.Id = created.Id;
+            }
+            else
+            {
+                await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship);
+            }
+            ctx.MarkAsUnmodified();
+        }
+        catch (HttpRequestException)
+        {
+            ship.Name = "";
+            ctx.Validate();
+        }
+    }
+}

@@ -1,0 +1,12 @@
+﻿@inherits InputText
+
+<div class="divTableCell" @attributes="@AdditionalAttributes">
+    <input type="text" Value="@Value"
+           @onchange="@(e => CurrentValueAsString = (string)e.Value)" />
+    <ValidationMessage For="@ValueExpression" />
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+}

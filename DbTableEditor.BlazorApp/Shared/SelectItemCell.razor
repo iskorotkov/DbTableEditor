@@ -1,0 +1,40 @@
+﻿@typeparam TValue
+@inherits InputBase<int>
+
+<div class="divTableCell" @attributes="@AdditionalAttributes">
+    <select value="@Value" @onchange="@(e => CurrentValueAsString = (string)e.Value)">
+        @foreach (var e in Elements)
+        {
+            var elem = e;
+            <option @key="@elem" value="@IndexFunc(elem)">@LabelFunc(elem)</option>
+        }
+    </select>
+    <ValidationMessage For="@ValueExpression" />
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public List<TValue> Elements { get; set; }
+
+    [Parameter] public Func<TValue, int> IndexFunc { get; set; }
+
+    [Parameter] public Func<TValue, string> LabelFunc { get; set; }
+
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    protected override bool TryParseValueFromString(string value, out int result, out string validationErrorMessage)
+    {
+        if (int.TryParse(value, out var num))
+        {
+            result = num;
+            validationErrorMessage = null;
+            return true;
+        }
+        else
+        {
+            result = default;
+            validationErrorMessage = $"The {FieldIdentifier.FieldName} field is not a number.";
+            return false;
+        }
+    }
+}

@@ -8,32 +8,14 @@
         Title="Spaceships"
         Height="450"
         Width="800">
+
     <Grid>
-        <DataGrid Name="Grid"
-                  ItemsSource="{Binding}"
-                  AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Id}"
-                                    Visibility="Collapsed" />
-                <DataGridTextColumn Binding="{Binding Name, Mode=TwoWay}"
-                                    Header="Name" />
-                <DataGridTextColumn Binding="{Binding Speed, Mode=TwoWay}"
-                                    Header="Speed" />
-                <DataGridTextColumn Binding="{Binding Capacity, Mode=TwoWay}"
-                                    Header="Capacity" />
-                <DataGridTextColumn Binding="{Binding Weight, Mode=TwoWay}"
-                                    Header="Weight" />
-                <DataGridTextColumn Binding="{Binding Energy, Mode=TwoWay}"
-                                    Header="Energy" />
-                <DataGridTextColumn Binding="{Binding Firepower, Mode=TwoWay}"
-                                    Header="Firepower" />
-                <DataGridTextColumn Binding="{Binding Hull, Mode=TwoWay}"
-                                    Header="Hull" />
-                <DataGridTextColumn Binding="{Binding Staff, Mode=TwoWay}"
-                                    Header="Staff" />
-                <DataGridTextColumn Binding="{Binding Fuel, Mode=TwoWay}"
-                                    Header="Fuel" />
-            </DataGrid.Columns>
-        </DataGrid>
+        <TabControl>
+            <TabItem Header="Spaceships">
+                <Frame Source="SpaceshipsPage.xaml"/>
+            </TabItem>
+            <TabItem Header="Shipyards">
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
