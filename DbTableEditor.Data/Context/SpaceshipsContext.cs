@@ -210,7 +210,7 @@ namespace DbTableEditor.Data.Context
                 entity.Property(e => e.StatusId).HasColumnName("status_id");
 
                 entity.HasOne(d => d.Commander)
-                    .WithOne(p => p.Fleets)
+                    .WithOne(p => p.Fleet)
                     .HasForeignKey<Fleet>(d => d.CommanderId)
                     .HasConstraintName("fleets_commanders_id_fk");
 

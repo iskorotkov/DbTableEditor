@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DbTableEditor.Data.Model
 {
+    [DisplayColumn(nameof(Name))]
     public partial class Star
     {
         public Star()
@@ -9,9 +11,9 @@ namespace DbTableEditor.Data.Model
             Planets = new HashSet<Planet>();
         }
 
-        public int Age { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
+        public int Age { get; set; }
         public virtual ICollection<Planet> Planets { get; set; }
         public int Size { get; set; }
         public virtual StarType Type { get; set; }

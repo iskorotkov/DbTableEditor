@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DbTableEditor.Data.Model
 {
+    [DisplayColumn(nameof(Name))]
     public partial class Empire
     {
         public Empire()
@@ -10,11 +12,11 @@ namespace DbTableEditor.Data.Model
             Planets = new HashSet<Planet>();
         }
 
+        public int Id { get; set; }
+        public string Name { get; set; }
         public virtual ICollection<AlliancesEntry> AlliancesEntries { get; set; }
         public virtual GovernmentType GovernmentType { get; set; }
         public int GovernmentTypeId { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
         public virtual ICollection<Planet> Planets { get; set; }
         public int Power { get; set; }
         public string Ruler { get; set; }

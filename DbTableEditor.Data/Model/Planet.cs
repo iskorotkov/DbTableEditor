@@ -1,13 +1,16 @@
-﻿namespace DbTableEditor.Data.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DbTableEditor.Data.Model
 {
+    [DisplayColumn(nameof(Name))]
     public partial class Planet
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
         public int? Approval { get; set; }
         public virtual Empire Empire { get; set; }
         public int? EmpireId { get; set; }
         public int Habitability { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
         public int Population { get; set; }
         public virtual Shipyard Shipyards { get; set; }
         public int Size { get; set; }

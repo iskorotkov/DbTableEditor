@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DbTableEditor.Data.Model
 {
+    [DisplayColumn(nameof(Name))]
     public partial class Shipyard
     {
         public Shipyard()
