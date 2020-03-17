@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
+using DbTableEditor.Data.Wrappers;
 
 namespace DbTableEditor.Api.Controllers
 {
@@ -19,6 +19,22 @@ namespace DbTableEditor.Api.Controllers
         public FleetsController(SpaceshipsContext context)
         {
             _context = context;
+        }
+
+        [HttpGet("operational")]
+        public async Task<ActionResult<IEnumerable<FleetOperational>>> GetOperationalFleets()
+        {
+            var fleets = await _context.Fleets
+                .Include(f => f.Spaceships)
+                .ToListAsync();
+            var result = fleets
+                .Select(f => new FleetOperational(f, f.Spaceships.Count > 0))
+                .ToList();
+            foreach (var entry in result)
+            {
+                entry.Fleet.Spaceships = null;
+            }
+            return result;
         }
 
         // GET: api/Fleets

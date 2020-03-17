@@ -9,7 +9,7 @@
 }
 else
 {
-    <table class="table table-bordered">
+    <table class="table table-bordered table-responsive">
         <thead>
             <tr>
                 @foreach (var column in Columns)
@@ -19,16 +19,23 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var fleet in Fleets)
+            @foreach (var (fleet, hasShips) in Fleets)
             {
                 var f = fleet;
                 <TableRow Model="@f" ValidSubmit="@SubmitChanges">
                     <DataAnnotationsValidator />
 
                     <td>
-                        <button class="btn btn-link" @onclick="@(() => Remove(f))">
-                            Remove
-                        </button>
+                        @if (hasShips)
+                        {
+                            <span>Fleet can't be deleted.</span>
+                        }
+                        else
+                        {
+                            <button class="btn btn-link" @onclick="@(() => Remove(f))">
+                                Remove
+                            </button>
+                        }
                     </td>
 
                     <TextCell @bind-Value="@f.Name">
@@ -57,7 +64,7 @@ else
 }
 
 @code {
-    private List<Fleet> Fleets { get; set; }
+    private List<FleetOperational> Fleets { get; set; }
     private List<Commander> Commanders { get; set; }
     private List<Status> Statuses { get; set; }
 
@@ -75,9 +82,9 @@ else
 
     private async Task InitFleets()
     {
-        var result = await Http.GetJsonAsync<IEnumerable<Fleet>>("api/fleets")
+        var result = await Http.GetJsonAsync<IEnumerable<FleetOperational>> ("api/fleets/operational")
             .ConfigureAwait(false);
-        Fleets = result.OrderBy(f => f.Id)
+        Fleets = result.OrderBy(f => f.Fleet.Id)
                        .ToList();
     }
 
@@ -101,13 +108,13 @@ else
     private void Create()
     {
         var fleet = new Fleet();
-        Fleets.Add(fleet);
+        Fleets.Add(new FleetOperational(fleet, false));
         StateHasChanged();
     }
 
     private async Task Remove(Fleet fleet)
     {
-        Fleets.Remove(fleet);
+        Fleets.RemoveAll(f => f.Fleet == fleet);
         if (NotSaved.Contains(fleet))
         {
             NotSaved.Remove(fleet);
