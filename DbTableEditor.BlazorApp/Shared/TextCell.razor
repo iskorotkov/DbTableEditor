@@ -1,12 +1,33 @@
-﻿@inherits InputText
-
-<div class="divTableCell" @attributes="@AdditionalAttributes">
-    <input type="text" Value="@Value"
-           @onchange="@(e => CurrentValueAsString = (string)e.Value)" />
+﻿<td>
+    <InputText @attributes="@AdditionalAttributes"
+               Value="@Value" ValueChanged="@_onChangedDelegate"
+               ValueExpression="@ValueExpression" />
     <ValidationMessage For="@ValueExpression" />
     @ChildContent
-</div>
+</td>
 
 @code {
     [Parameter] public RenderFragment ChildContent { get; set; }
+
+    [Parameter] public string Value { get; set; }
+
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter] public Expression<Func<string>> ValueExpression { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; }
+
+    private readonly Func<string, Task> _onChangedDelegate;
+
+    public TextCell()
+    {
+        _onChangedDelegate = OnValueChanged;
+    }
+
+    private async Task OnValueChanged(string val)
+    {
+        Value = val;
+        await ValueChanged.InvokeAsync(val);
+    }
 }

@@ -9,33 +9,32 @@
 }
 else
 {
-    <div class="divTable">
-        <div class="divTableHeading">
-            <div class="divTableRow">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
                 @foreach (var column in Columns)
                 {
-                    <div @key="@column" class="divTableHead">@column</div>
+                    <th @key="@column" class="divTableHead">@column</th>
                 }
-            </div>
-        </div>
-        <div class="divTableBody">
+            </tr>
+        </thead>
+        <tbody>
             @foreach (var ship in Spaceships)
             {
                 var s = ship;
-                <TableForm @key="@s" class="divTableRow" Model="@s"
-                           OnValidSubmit="@(ctx => SubmitChanges(ctx))">
+                <TableRow Model="@s" ValidSubmit="@SubmitChanges">
                     <DataAnnotationsValidator />
 
-                    <div class="divTableCell">
+                    <td class="divTableCell">
                         <button class="btn btn-link" @onclick="@(() => Remove(s))">
                             Remove
                         </button>
-                    </div>
+                    </td>
 
                     <TextCell @bind-Value="@s.Name">
                         @if (NotSaved.Contains(s))
                         {
-                            <div class="alert alert-danger">Name must be distinct.</div>
+                            <div class="validation-message">Name must be distinct.</div>
                         }
                     </TextCell>
 
@@ -53,17 +52,17 @@ else
 
                     <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
                                     IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
-                </TableForm>
+                </TableRow>
             }
-            <div class="divTableRow">
-                <div class="divTableCell">
+            <tr class="divTableRow">
+                <td class="divTableCell">
                     <button class="btn btn-link" @onclick="@Create">
                         Create
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 }
 
 @code {
@@ -118,6 +117,11 @@ else
     private async Task Remove(Spaceship ship)
     {
         Spaceships.Remove(ship);
+        if (NotSaved.Contains(ship))
+        {
+            NotSaved.Remove(ship);
+        }
+
         if (ship.Id != 0)
         {
             try
