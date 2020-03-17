@@ -1,0 +1,60 @@
+﻿<tr @key="Model" @attributes="@AdditionalAttributes"
+    @onfocusout="@_onSubmitDelegate">
+    <CascadingValue Value="_fixedEditContext" IsFixed="true">
+        @ChildContent
+    </CascadingValue>
+</tr>
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    [Parameter] public object Model { get; set; }
+
+    [Parameter] public EditContext EditContext { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; }
+
+    [Parameter] public EventCallback<EditContext> Submit { get; set; }
+
+    [Parameter] public EventCallback<EditContext> ValidSubmit { get; set; }
+
+    private EditContext _fixedEditContext;
+
+    private readonly Func<Task> _onSubmitDelegate;
+
+    public TableRow()
+    {
+        _onSubmitDelegate = OnSubmit;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if ((EditContext == null) == (Model == null))
+        {
+            throw new InvalidOperationException($"{nameof(TableRow)} requires a {nameof(Model)} " +
+                    $"parameter, or an {nameof(EditContext)} parameter, but not both.");
+        }
+
+        if (_fixedEditContext == null || EditContext != null || Model != _fixedEditContext.Model)
+        {
+            _fixedEditContext = EditContext ?? new EditContext(Model);
+        }
+    }
+
+    private async Task OnSubmit()
+    {
+        if (Submit.HasDelegate)
+        {
+            await Submit.InvokeAsync(_fixedEditContext);
+        }
+        else
+        {
+            var valid = _fixedEditContext.Validate();
+            if (valid && ValidSubmit.HasDelegate)
+            {
+                await ValidSubmit.InvokeAsync(_fixedEditContext);
+            }
+        }
+    }
+}
