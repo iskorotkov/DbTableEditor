@@ -25,7 +25,7 @@ else
                 <TableRow Model="@s" ValidSubmit="@SubmitChanges">
                     <DataAnnotationsValidator />
 
-                    <td class="divTableCell">
+                    <td>
                         <button class="btn btn-link" @onclick="@(() => Remove(s))">
                             Remove
                         </button>
@@ -54,9 +54,9 @@ else
                                     IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
                 </TableRow>
             }
-            <tr class="divTableRow">
-                <td class="divTableCell">
-                    <button class="btn btn-link" @onclick="@Create">
+            <tr>
+                <td>
+                    <button class="btn btn-block" @onclick="@Create">
                         Create
                     </button>
                 </td>

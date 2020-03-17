@@ -42,7 +42,7 @@ namespace DbTableEditor.Data.Context
 
         public virtual DbSet<Star> Stars { get; set; }
 
-        public virtual DbSet<Statuses> Statuses { get; set; }
+        public virtual DbSet<Status> Statuses { get; set; }
 
         public override int SaveChanges()
         {
@@ -416,7 +416,7 @@ namespace DbTableEditor.Data.Context
                     .HasConstraintName("stars_star_types_id_fk");
             });
 
-            modelBuilder.Entity<Statuses>(entity =>
+            modelBuilder.Entity<Status>(entity =>
             {
                 entity.ToTable("statuses");
 

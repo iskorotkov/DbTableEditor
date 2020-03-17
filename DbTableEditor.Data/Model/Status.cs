@@ -2,9 +2,9 @@
 
 namespace DbTableEditor.Data.Model
 {
-    public partial class Statuses
+    public partial class Status
     {
-        public Statuses()
+        public Status()
         {
             Fleets = new HashSet<Fleet>();
         }
