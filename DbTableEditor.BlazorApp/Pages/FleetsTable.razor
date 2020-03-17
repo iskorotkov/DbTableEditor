@@ -64,7 +64,7 @@ else
     private HashSet<Fleet> NotSaved { get; set; } = new HashSet<Fleet>();
 
     private List<string> Columns { get; set; } = new List<string>
-{ "", "Name", "Commander", "Status" };
+        { "", "Name", "Commander", "Status" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,6 +112,7 @@ else
         {
             NotSaved.Remove(fleet);
         }
+
         if (fleet.Id != 0)
         {
             try
