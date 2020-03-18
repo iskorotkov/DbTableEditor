@@ -6,6 +6,7 @@ namespace DbTableEditor.Data.Model
     public partial class Planet
     {
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public int? Approval { get; set; }
         public virtual Empire Empire { get; set; }

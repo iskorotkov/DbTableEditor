@@ -6,7 +6,9 @@ namespace DbTableEditor.Data.Model
     public partial class Commander
     {
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
+        [Required]
         public string Gender { get; set; }
         public int Age { get; set; }
         public virtual Fleet Fleet { get; set; }

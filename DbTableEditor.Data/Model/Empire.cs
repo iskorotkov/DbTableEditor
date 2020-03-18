@@ -13,6 +13,7 @@ namespace DbTableEditor.Data.Model
         }
 
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public virtual ICollection<AlliancesEntry> AlliancesEntries { get; set; }
         public virtual GovernmentType GovernmentType { get; set; }

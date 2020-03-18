@@ -12,6 +12,7 @@ namespace DbTableEditor.Data.Model
         }
 
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public int Pipelines { get; set; }
         public virtual Planet Planet { get; set; }
