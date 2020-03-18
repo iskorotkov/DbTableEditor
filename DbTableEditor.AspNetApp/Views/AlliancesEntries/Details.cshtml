@@ -1,0 +1,36 @@
+﻿@model DbTableEditor.Data.Model.AlliancesEntry
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>AlliancesEntry</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Alliance)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Alliance.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Empire)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Empire.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EntryYear)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EntryYear)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

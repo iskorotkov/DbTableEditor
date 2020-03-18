@@ -2,8 +2,14 @@
 
 namespace DbTableEditor.Data.Model
 {
+    [DisplayColumn(nameof(Name))]
     public partial class Spaceship
     {
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
         [Range(0, int.MaxValue)]
         public int Capacity { get; set; }
 
@@ -24,10 +30,6 @@ namespace DbTableEditor.Data.Model
         [Range(0, int.MaxValue)]
         public int Hull { get; set; }
 
-        public int Id { get; set; }
-
-        [Required]
-        public string Name { get; set; }
 
         public virtual Shipyard Shipyard { get; set; }
 

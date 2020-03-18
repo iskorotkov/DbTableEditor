@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DbTableEditor.Data.Model
 {
+    [DisplayColumn(nameof(Name))]
     public partial class Alliance
     {
         public Alliance()
@@ -9,9 +11,9 @@ namespace DbTableEditor.Data.Model
             AlliancesEntries = new HashSet<AlliancesEntry>();
         }
 
-        public virtual ICollection<AlliancesEntry> AlliancesEntries { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
+        public virtual ICollection<AlliancesEntry> AlliancesEntries { get; set; }
         public int Power { get; set; }
 
         public override string ToString()

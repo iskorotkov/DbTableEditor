@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DbTableEditor.Data.Model
 {
+    [DisplayColumn(nameof(Name))]
     public partial class GovernmentType
     {
         public GovernmentType()
@@ -9,9 +11,9 @@ namespace DbTableEditor.Data.Model
             Empires = new HashSet<Empire>();
         }
 
-        public virtual ICollection<Empire> Empires { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
+        public virtual ICollection<Empire> Empires { get; set; }
 
         public override string ToString()
         {

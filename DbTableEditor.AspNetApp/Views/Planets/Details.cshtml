@@ -1,0 +1,60 @@
+﻿@model DbTableEditor.Data.Model.Planet
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Planet</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Approval)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Approval)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Empire)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Empire.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Habitability)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Habitability)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Population)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Population)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Size)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Size)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Star)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Star.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
