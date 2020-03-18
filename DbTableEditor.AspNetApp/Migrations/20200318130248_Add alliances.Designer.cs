@@ -3,15 +3,17 @@ using System;
 using DbTableEditor.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DbTableEditor.AspNetApp.Migrations
 {
     [DbContext(typeof(SpaceshipsContext))]
-    partial class SpaceshipsContextModelSnapshot : ModelSnapshot
+    [Migration("20200318130248_Add alliances")]
+    partial class Addalliances
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,14 +49,14 @@ namespace DbTableEditor.AspNetApp.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 11,
-                            Name = "Trade League",
+                            Id = 1,
+                            Name = "Holy League",
                             Power = 300
                         },
                         new
                         {
-                            Id = 12,
-                            Name = "Eternal Alliance",
+                            Id = 2,
+                            Name = "Strong Alliance",
                             Power = 400
                         });
                 });
