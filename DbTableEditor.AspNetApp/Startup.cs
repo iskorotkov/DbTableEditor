@@ -45,12 +45,6 @@ namespace DbTableEditor.AspNetApp
 
             app.UseAuthorization();
 
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<SpaceshipsContext>();
-                context.Database.Migrate();
-            }
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
