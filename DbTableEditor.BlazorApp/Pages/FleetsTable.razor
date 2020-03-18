@@ -39,14 +39,19 @@ else
                     </td>
 
                     <TextCell @bind-Value="@f.Name">
-                        @if (NotSaved.Contains(f))
+                        @if (DuplicatedName.Contains(f))
                         {
                             <div class="validation-message">Name must be distinct.</div>
                         }
                     </TextCell>
 
                     <SelectItemCell @bind-Value="@f.CommanderId" Elements="@Commanders"
-                                    IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
+                                    IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                        @if (DuplicatedCommander.Contains(f))
+                        {
+                            <div class="validation-message">Commander must be distinct.</div>
+                        }
+                    </SelectItemCell>
 
                     <SelectItemCell @bind-Value="@f.StatusId" Elements="@Statuses"
                                     IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
@@ -68,7 +73,8 @@ else
     private List<Commander> Commanders { get; set; }
     private List<Status> Statuses { get; set; }
 
-    private HashSet<Fleet> NotSaved { get; set; } = new HashSet<Fleet>();
+    private HashSet<Fleet> DuplicatedName { get; set; } = new HashSet<Fleet>();
+    private HashSet<Fleet> DuplicatedCommander { get; set; } = new HashSet<Fleet>();
 
     private List<string> Columns { get; set; } = new List<string>
         { "", "Name", "Commander", "Status" };
@@ -115,53 +121,65 @@ else
     private async Task Remove(Fleet fleet)
     {
         Fleets.RemoveAll(f => f.Fleet == fleet);
-        if (NotSaved.Contains(fleet))
+        if (DuplicatedName.Contains(fleet))
         {
-            NotSaved.Remove(fleet);
+            DuplicatedName.Remove(fleet);
+        }
+        if (DuplicatedCommander.Contains(fleet))
+        {
+            DuplicatedCommander.Remove(fleet);
         }
 
         if (fleet.Id != 0)
         {
-            try
-            {
-                await Http.DeleteAsync($"api/fleets/{fleet.Id}")
-                    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException)
-            {
-                // Ignore
-            }
+            await Http.DeleteAsync($"api/fleets/{fleet.Id}")
+                .ConfigureAwait(false);
         }
     }
 
     private async Task SubmitChanges(EditContext ctx)
     {
-        var fleet = (Fleet)ctx.Model;
-        if (NotSaved.Contains(fleet))
-        {
-            NotSaved.Remove(fleet);
-        }
-
         if (!ctx.IsModified())
         {
             return;
         }
-        try
+
+        var fleet = (Fleet)ctx.Model;
+        var duplicated = false;
+        if (Fleets.Exists(f => f.Fleet.Id != fleet.Id && f.Fleet.Name == fleet.Name))
         {
-            if (fleet.Id == 0)
-            {
-                var created = await Http.PostJsonAsync<Fleet>("api/fleets", fleet);
-                fleet.Id = created.Id;
-            }
-            else
-            {
-                await Http.PutJsonAsync($"api/fleets/{fleet.Id}", fleet);
-            }
-            ctx.MarkAsUnmodified();
+            DuplicatedName.Add(fleet);
+            duplicated = true;
         }
-        catch (HttpRequestException)
+        else if (DuplicatedName.Contains(fleet))
         {
-            NotSaved.Add(fleet);
+            DuplicatedName.Remove(fleet);
         }
+
+        if (Fleets.Exists(f => f.Fleet.Id != fleet.Id && f.Fleet.CommanderId == fleet.CommanderId))
+        {
+            DuplicatedCommander.Add(fleet);
+            duplicated = true;
+        }
+        else if (DuplicatedCommander.Contains(fleet))
+        {
+            DuplicatedCommander.Remove(fleet);
+        }
+
+        if (duplicated)
+        {
+            return;
+        }
+
+        if (fleet.Id == 0)
+        {
+            var created = await Http.PostJsonAsync<Fleet>("api/fleets", fleet);
+            fleet.Id = created.Id;
+        }
+        else
+        {
+            await Http.PutJsonAsync($"api/fleets/{fleet.Id}", fleet);
+        }
+        ctx.MarkAsUnmodified();
     }
 }

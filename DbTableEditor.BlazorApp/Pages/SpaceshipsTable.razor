@@ -32,7 +32,7 @@ else
                     </td>
 
                     <TextCell @bind-Value="@s.Name">
-                        @if (NotSaved.Contains(s))
+                        @if (DuplicatedName.Contains(s))
                         {
                             <div class="validation-message">Name must be distinct.</div>
                         }
@@ -70,7 +70,7 @@ else
     private List<Fleet> Fleets { get; set; }
     private List<Shipyard> Shipyards { get; set; }
 
-    private HashSet<Spaceship> NotSaved { get; set; } = new HashSet<Spaceship>();
+    private HashSet<Spaceship> DuplicatedName { get; set; } = new HashSet<Spaceship>();
 
     private List<string> Columns { get; set; } = new List<string> { "", "Name", "Capacity",
         "Energy", "Firepower", "Fuel", "Hull", "Speed", "Staff", "Weight", "Fleet", "Shipyard" };
@@ -117,53 +117,46 @@ else
     private async Task Remove(Spaceship ship)
     {
         Spaceships.Remove(ship);
-        if (NotSaved.Contains(ship))
+        if (DuplicatedName.Contains(ship))
         {
-            NotSaved.Remove(ship);
+            DuplicatedName.Remove(ship);
         }
 
         if (ship.Id != 0)
         {
-            try
-            {
-                await Http.DeleteAsync($"api/spaceships/{ship.Id}")
-                    .ConfigureAwait(false);
-            }
-            catch (HttpRequestException)
-            {
-                // Ignore
-            }
+            await Http.DeleteAsync($"api/spaceships/{ship.Id}")
+                .ConfigureAwait(false);
         }
     }
 
     private async Task SubmitChanges(EditContext ctx)
     {
-        var ship = (Spaceship)ctx.Model;
-        if (NotSaved.Contains(ship))
-        {
-            NotSaved.Remove(ship);
-        }
-
         if (!ctx.IsModified())
         {
             return;
         }
-        try
+
+        var ship = (Spaceship)ctx.Model;
+        if (Spaceships.Exists(s => s.Id != ship.Id && s.Name == ship.Name))
         {
-            if (ship.Id == 0)
-            {
-                var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship);
-                ship.Id = created.Id;
-            }
-            else
-            {
-                await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship);
-            }
-            ctx.MarkAsUnmodified();
+            DuplicatedName.Add(ship);
+            return;
         }
-        catch (HttpRequestException)
+
+        if (DuplicatedName.Contains(ship))
         {
-            NotSaved.Add(ship);
+            DuplicatedName.Remove(ship);
         }
+
+        if (ship.Id == 0)
+        {
+            var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship);
+            ship.Id = created.Id;
+        }
+        else
+        {
+            await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship);
+        }
+        ctx.MarkAsUnmodified();
     }
 }
