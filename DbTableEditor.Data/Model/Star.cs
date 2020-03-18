@@ -13,7 +13,7 @@ namespace DbTableEditor.Data.Model
 
         public int Id { get; set; }
         public string Name { get; set; }
-        public int Age { get; set; }
+        public long Age { get; set; }
         public virtual ICollection<Planet> Planets { get; set; }
         public int Size { get; set; }
         public virtual StarType Type { get; set; }
