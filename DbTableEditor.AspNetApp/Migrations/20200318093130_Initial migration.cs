@@ -144,7 +144,8 @@ namespace DbTableEditor.AspNetApp.Migrations
                 name: "alliances_entries",
                 columns: table => new
                 {
-                    id = table.Column<int>(nullable: false, defaultValueSql: "nextval('alliance_entries_id_seq'::regclass)"),
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     alliance_id = table.Column<int>(nullable: false),
                     empire_id = table.Column<int>(nullable: false),
                     entry_year = table.Column<int>(nullable: false)
