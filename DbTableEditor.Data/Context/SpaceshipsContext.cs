@@ -106,8 +106,7 @@ namespace DbTableEditor.Data.Context
                     .IsUnique();
 
                 entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasDefaultValueSql("nextval('alliance_entries_id_seq'::regclass)");
+                    .HasColumnName("id");
 
                 entity.Property(e => e.AllianceId).HasColumnName("alliance_id");
 
