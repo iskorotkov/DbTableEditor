@@ -13,6 +13,9 @@ namespace DbTableEditor.BlazorApp.Services
         private readonly IJSRuntime _jSRuntime;
         private readonly DotNetObjectReference<SaveOnCloseService> _objRef;
 
+        private bool _preventClosingEnabled;
+        private bool _saveOnCloseEnabled;
+
         public SaveOnCloseService(IJSRuntime jSRuntime)
         {
             _jSRuntime = jSRuntime;
@@ -21,12 +24,20 @@ namespace DbTableEditor.BlazorApp.Services
 
         public async Task EnablePreventClosing()
         {
-            await _jSRuntime.InvokeVoidAsync("preventClosing.bindToClose", _objRef);
+            if (!_preventClosingEnabled)
+            {
+                _preventClosingEnabled = true;
+                await _jSRuntime.InvokeVoidAsync("preventClosing.bindToClose", _objRef);
+            }
         }
 
         public async Task EnableSaveOnClose()
         {
-            await _jSRuntime.InvokeVoidAsync("saveOnClose.bindToClose", _objRef);
+            if (!_saveOnCloseEnabled)
+            {
+                _saveOnCloseEnabled = true;
+                await _jSRuntime.InvokeVoidAsync("saveOnClose.bindToClose", _objRef);
+            }
         }
 
         [JSInvokable]
