@@ -17,8 +17,10 @@ namespace DbTableEditor.Data.Model
         public string Name { get; set; }
         public virtual ICollection<AlliancesEntry> AlliancesEntries { get; set; }
         public virtual GovernmentType GovernmentType { get; set; }
+        [ValidId]
         public int GovernmentTypeId { get; set; }
         public virtual ICollection<Planet> Planets { get; set; }
+        [Range(0, int.MaxValue)]
         public int Power { get; set; }
         public string Ruler { get; set; }
 
