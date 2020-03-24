@@ -20,9 +20,14 @@ namespace DbTableEditor.BlazorApp.Shared
         [Parameter] public List<string> Columns { get; set; }
         [Parameter] public List<T> Items { get; set; }
         [Parameter] public RenderFragment Header { get; set; }
-        [Parameter] public RenderFragment<T> ChildContent { get; set; }
+        [Parameter] public RenderFragment<T> Row { get; set; }
         [Parameter] public Func<T, int> GetId { get; set; }
         [Parameter] public Action<T, int> SetId { get; set; }
+        [Parameter] public EventCallback PopulateData { get; set; }
+        [Parameter] public EventCallback<T> OnAdded { get; set; }
+        [Parameter] public EventCallback<T> OnRemoved { get; set; }
+        [Parameter] public EventCallback<EditContext> OnChangesSubmitted { get; set; }
+        [Parameter] public Predicate<EditContext> CanSubmitChanges { get; set; }
 
         [Parameter(CaptureUnmatchedValues = true)]
         public Dictionary<string, object> AdditionalAttributes { get; set; }
@@ -32,35 +37,29 @@ namespace DbTableEditor.BlazorApp.Shared
 
         protected override async Task OnInitializedAsync()
         {
-            await PopulateData();
+            await PopulateData.InvokeAsync(null);
             SaveOnClose.PageClosing += async (ctx) => await SubmitChanges(ctx);
             await SaveOnClose.EnablePreventClosing();
         }
 
-        protected abstract Task PopulateData();
-
-        private void Create()
+        private async Task Create()
         {
             var item = new T();
             Items.Add(item);
-            OnAdded(item);
+            await OnAdded.InvokeAsync(item);
             StateHasChanged();
         }
-
-        protected abstract void OnAdded(T item);
 
         private async Task Remove(T item)
         {
             Items.Remove(item);
-            OnRemoved(item);
+            await OnRemoved.InvokeAsync(item);
             if (GetId(item) != 0)
             {
                 await Http.DeleteAsync($"api/spaceships/{GetId(item)}")
                     .ConfigureAwait(false);
             }
         }
-
-        protected abstract void OnRemoved(T item);
 
         private async Task SubmitChanges(EditContext ctx)
         {
@@ -69,7 +68,7 @@ namespace DbTableEditor.BlazorApp.Shared
                 return;
             }
 
-            if (!CanSubmitChanges(ctx))
+            if (!CanSubmitChanges?.Invoke(ctx) ?? false)
             {
                 return;
             }
@@ -86,11 +85,8 @@ namespace DbTableEditor.BlazorApp.Shared
             }
 
             ctx.MarkAsUnmodified();
-            OnChangesSubmitted(ctx);
+            await OnChangesSubmitted.InvokeAsync(ctx);
         }
-
-        protected abstract void OnChangesSubmitted(EditContext ctx);
-        protected abstract bool CanSubmitChanges(EditContext ctx);
 
         private void UpdateSelected(EditContext ctx)
         {
