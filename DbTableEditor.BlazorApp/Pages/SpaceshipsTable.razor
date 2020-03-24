@@ -23,7 +23,7 @@ else
             @foreach (var ship in Spaceships)
             {
                 var s = ship;
-                <TableRow Model="@s" ValidSubmit="@SubmitChanges">
+                <TableRow Model="@s" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
                     <DataAnnotationsValidator />
 
                     <td>
@@ -81,6 +81,8 @@ else
         await InitFleets();
         await InitShipyards();
         await InitSpaceships();
+
+        SaveOnClose.PageClosing += async (ctx) => await SubmitChanges(ctx);
         await SaveOnClose.EnablePreventClosing();
     }
 
@@ -160,5 +162,10 @@ else
             await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship);
         }
         ctx.MarkAsUnmodified();
+    }
+
+    private void UpdateSelected(EditContext ctx)
+    {
+        SaveOnClose.EditContext = ctx;
     }
 }

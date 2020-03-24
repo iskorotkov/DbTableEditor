@@ -8,7 +8,7 @@ namespace DbTableEditor.BlazorApp.Services
     public sealed class SaveOnCloseService : IDisposable
     {
         public EditContext EditContext { get; set; }
-        public event Action PageClosing;
+        public event Action<EditContext> PageClosing;
 
         private readonly IJSRuntime _jSRuntime;
         private readonly DotNetObjectReference<SaveOnCloseService> _objRef;
@@ -34,13 +34,19 @@ namespace DbTableEditor.BlazorApp.Services
         {
             if (EditContext?.Validate() == true)
             {
-                PageClosing?.Invoke();
+                PageClosing?.Invoke(EditContext);
             }
         }
 
         [JSInvokable]
-        public bool ShouldPreventClosing() => EditContext?.IsModified() == true && EditContext.Validate();
+        public bool ShouldPreventClosing()
+        {
+            return true;
+        }
 
-        public void Dispose() => _objRef.Dispose();
+        public void Dispose()
+        {
+            _objRef.Dispose();
+        }
     }
 }

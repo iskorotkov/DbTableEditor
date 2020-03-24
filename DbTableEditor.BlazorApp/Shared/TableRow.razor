@@ -1,5 +1,6 @@
 ﻿<tr @key="Model" @attributes="@AdditionalAttributes"
-    @onfocusout="@_onSubmitDelegate">
+    @onfocusout="@_onSubmitDelegate"
+    @onfocusin="@_onFocusInDelegate">
     <CascadingValue Value="_fixedEditContext" IsFixed="true">
         @ChildContent
     </CascadingValue>
@@ -19,13 +20,17 @@
 
     [Parameter] public EventCallback<EditContext> ValidSubmit { get; set; }
 
+    [Parameter] public EventCallback<EditContext> FocusIn { get; set; }
+
     private EditContext _fixedEditContext;
 
     private readonly Func<Task> _onSubmitDelegate;
+    private readonly Func<Task> _onFocusInDelegate;
 
     public TableRow()
     {
         _onSubmitDelegate = OnSubmit;
+        _onFocusInDelegate = OnFocusIn;
     }
 
     protected override void OnParametersSet()
@@ -56,5 +61,10 @@
                 await ValidSubmit.InvokeAsync(_fixedEditContext);
             }
         }
+    }
+
+    private async Task OnFocusIn()
+    {
+        await FocusIn.InvokeAsync(_fixedEditContext);
     }
 }
