@@ -12,50 +12,50 @@ else
 {
     <table class="table table-bordered table-responsive">
         <thead>
-            <tr>
-                @foreach (var column in Columns)
-                {
-                    <th @key="@column" class="divTableHead">@column</th>
-                }
-            </tr>
+        <tr>
+            @foreach (var column in Columns)
+            {
+                <th @key="@column" class="divTableHead">@column</th>
+            }
+        </tr>
         </thead>
         <tbody>
-            @foreach (var emp in Empires)
-            {
-                var empire = emp;
-                <TableRow Model="@empire" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                    <DataAnnotationsValidator />
+        @foreach (var emp in Empires)
+        {
+            var empire = emp;
+            <TableRow Model="@empire" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                <DataAnnotationsValidator/>
 
-            <td>
-                <button class="btn btn-link" @onclick="@(() => Remove(empire))">
-                    Remove
-                </button>
-            </td>
-
-            <TextCell @bind-Value="@empire.Name">
-                @if (DuplicatedName.Contains(empire))
-                {
-                    <div class="validation-message">Name must be distinct.</div>
-                }
-            </TextCell>
-
-            <NumberCell @bind-Value="@empire.Power" />
-            <TextCell @bind-Value="@empire.Ruler" />
-
-            <SelectItemCell @bind-Value="@empire.GovernmentTypeId" Elements="@GovernmentTypes"
-                            IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
-            </TableRow>
-        }
-            <tr>
                 <td>
-                    <button class="btn btn-link" @onclick="@Create">
-                        Create
+                    <button class="btn btn-link" @onclick="@(() => Remove(empire))">
+                        Remove
                     </button>
                 </td>
-            </tr>
-            </tbody>
-        </table>
-    }
+
+                <TextCell @bind-Value="@empire.Name">
+                    @if (DuplicatedName.Contains(empire))
+                    {
+                        <div class="validation-message">Name must be distinct.</div>
+                    }
+                </TextCell>
+
+                <NumberCell @bind-Value="@empire.Power"/>
+                <TextCell @bind-Value="@empire.Ruler"/>
+
+                <SelectItemCell @bind-Value="@empire.GovernmentTypeId" Elements="@GovernmentTypes"
+                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+            </TableRow>
+        }
+        <tr>
+            <td>
+                <button class="btn btn-link" @onclick="@Create">
+                    Create
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+}
 
 @code {
     private List<Empire> Empires { get; set; }
@@ -63,8 +63,11 @@ else
 
     private HashSet<Empire> DuplicatedName { get; set; } = new HashSet<Empire>();
 
-    private List<string> Columns { get; set; } = new List<string> { "", "Name", "Power",
-        "Ruler", "Government Type" };
+    private List<string> Columns { get; set; } = new List<string>
+    {
+        "", "Name", "Power",
+        "Ruler", "Government Type"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -80,7 +83,7 @@ else
         var result = await Http.GetJsonAsync<IEnumerable<GovernmentType>>("api/governmenttypes")
             .ConfigureAwait(false);
         GovernmentTypes = result.OrderBy(t => t.Id)
-                       .ToList();
+            .ToList();
     }
 
     private async Task InitEmpires()
@@ -135,7 +138,7 @@ else
 
         if (empire.Id == 0)
         {
-            var created = await Http.PostJsonAsync<Spaceship>("api/empires", empire);
+            var created = await Http.PostJsonAsync<Empire>("api/empires", empire);
             empire.Id = created.Id;
         }
         else
@@ -149,4 +152,5 @@ else
     {
         SaveOnClose.EditContext = ctx;
     }
+
 }
