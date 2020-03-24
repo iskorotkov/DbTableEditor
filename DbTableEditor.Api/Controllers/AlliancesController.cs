@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
+using DbTableEditor.Data.Wrappers;
 
 namespace DbTableEditor.Api.Controllers
 {
@@ -26,6 +27,14 @@ namespace DbTableEditor.Api.Controllers
         public async Task<ActionResult<IEnumerable<Alliance>>> GetAlliances()
         {
             return await _context.Alliances.ToListAsync();
+        }
+
+        [HttpGet("status")]
+        public async Task<ActionResult<IEnumerable<AllianceStatus>>> GetAlliancesStatus()
+        {
+            return await _context.Alliances
+                .Select(a => new AllianceStatus(a, a.AlliancesEntries.Count > 0))
+                .ToListAsync();
         }
 
         // GET: api/Alliances/5
