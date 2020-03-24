@@ -1,0 +1,43 @@
+﻿@typeparam T
+
+<h3>@Header</h3>
+
+@if (Items == null)
+{
+    <span>Loading data...</span>
+}
+else
+{
+    <table class="table table-bordered table-responsive" @attributes="@AdditionalAttributes">
+        <thead>
+        <tr>
+            @foreach (var column in Columns)
+            {
+                <th @key="@column" class="divTableHead">@column</th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var i in Items)
+        {
+            var item = i;
+            <TableRow Model="@item" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                <DataAnnotationsValidator/>
+                <td>
+                    <button class="btn btn-link" @onclick="@(() => Remove(item))">
+                        Remove
+                    </button>
+                </td>
+                @Row(item)
+            </TableRow>
+        }
+        <tr>
+            <td>
+                <button class="btn btn-link" @onclick="@Create">
+                    Create
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+}
