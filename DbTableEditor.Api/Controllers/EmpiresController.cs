@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
+using DbTableEditor.Data.Wrappers;
 
 namespace DbTableEditor.Api.Controllers
 {
@@ -26,6 +25,14 @@ namespace DbTableEditor.Api.Controllers
         public async Task<ActionResult<IEnumerable<Empire>>> GetEmpires()
         {
             return await _context.Empires.ToListAsync();
+        }
+
+        [HttpGet("inalliance")]
+        public async Task<ActionResult<IEnumerable<EmpireInAlliance>>> GetEmpiresInAlliance()
+        {
+            return await _context.Empires
+                .Select(e => new EmpireInAlliance(e, e.AlliancesEntries.Count > 0))
+                .ToListAsync();
         }
 
         // GET: api/Empires/5
