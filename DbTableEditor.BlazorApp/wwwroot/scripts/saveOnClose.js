@@ -2,31 +2,28 @@ var SaveOnClose = /** @class */ (function () {
     function SaveOnClose() {
     }
     SaveOnClose.prototype.bindToClose = function (obj) {
-        window.addEventListener("beforeunload", function (e) {
-            obj.invokeMethodAsync("OnClose");
-            console.log("save on close - bind");
+        window.addEventListener("beforeunload", function (_) {
+            obj.invokeMethod("OnClose");
         });
     };
     SaveOnClose.prototype.unbind = function (obj) {
         // window.removeEventListener("beforeunload", ?)
-        console.log("save on close - unbind");
     };
     return SaveOnClose;
 }());
 var PreventClosing = /** @class */ (function () {
     function PreventClosing() {
     }
-    PreventClosing.prototype.bindToClose = function () {
-        window.addEventListener("beforeunload", function (e) {
-            var confirmationMessage = "";
-            (e || window.event).returnValue = confirmationMessage;
-            return confirmationMessage;
+    PreventClosing.prototype.bindToClose = function (obj) {
+        window.addEventListener("beforeunload", function (event) {
+            if (obj.invokeMethod("ShouldPreventClosing")) {
+                event.preventDefault();
+                event.returnValue = "";
+            }
         });
-        console.log("prevent closing - bind");
     };
     PreventClosing.prototype.unbind = function () {
         // window.removeEventListener("beforeunload", ?)
-        console.log("prevent closing - unbind");
     };
     return PreventClosing;
 }());

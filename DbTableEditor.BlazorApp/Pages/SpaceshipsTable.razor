@@ -1,5 +1,6 @@
 ﻿@page "/spaceships"
 @inject HttpClient Http
+@inject SaveOnCloseService SaveOnClose
 
 <h3>Spaceships</h3>
 
@@ -80,6 +81,7 @@ else
         await InitFleets();
         await InitShipyards();
         await InitSpaceships();
+        await SaveOnClose.EnablePreventClosing();
     }
 
     private async Task InitFleets()

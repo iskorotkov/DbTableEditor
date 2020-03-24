@@ -28,8 +28,4 @@
     <TypeScriptCompile Include="wwwroot\scripts\saveOnClose.ts" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
-  </PropertyGroup>
-
 </Project>

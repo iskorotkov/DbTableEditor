@@ -2,37 +2,35 @@
 {
     public bindToClose(obj: DotNet.DotNetObject): void
     {
-        window.addEventListener("beforeunload", function (e)
+        window.addEventListener("beforeunload", function (_)
         {
-            obj.invokeMethodAsync("OnClose")
-            console.log("save on close - bind")
+            obj.invokeMethod("OnClose")
         })
     }
 
     public unbind(obj: DotNet.DotNetObject): void
     {
         // window.removeEventListener("beforeunload", ?)
-        console.log("save on close - unbind")
     }
 }
 
 class PreventClosing
 {
-    public bindToClose(): void
+    public bindToClose(obj: DotNet.DotNetObject): void
     {
-        window.addEventListener("beforeunload", function (e)
+        window.addEventListener("beforeunload", function (event)
         {
-            const confirmationMessage = "";
-            (e || window.event).returnValue = confirmationMessage
-            return confirmationMessage
+            if (obj.invokeMethod<boolean>("ShouldPreventClosing"))
+            {
+                event.preventDefault()
+                event.returnValue = ""
+            }
         })
-        console.log("prevent closing - bind")
     }
 
     public unbind(): void
     {
         // window.removeEventListener("beforeunload", ?)
-        console.log("prevent closing - unbind")
     }
 }
 
