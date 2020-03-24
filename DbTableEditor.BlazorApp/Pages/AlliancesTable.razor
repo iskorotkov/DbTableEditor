@@ -1,0 +1,146 @@
+﻿@page "/alliances"
+@inject HttpClient Http
+@inject SaveOnCloseService SaveOnClose
+
+<h3>Alliances</h3>
+
+@if (Alliances == null)
+{
+    <span>Loading data...</span>
+}
+else
+{
+    <table class="table table-bordered table-responsive">
+        <thead>
+        <tr>
+            @foreach (var column in Columns)
+            {
+                <th @key="@column" class="divTableHead">@column</th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var (al, emp) in Alliances)
+        {
+            var alliance = al;
+            var hasEmpires = emp;
+            <TableRow Model="@alliance" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                <DataAnnotationsValidator/>
+
+                <td>
+                    @if (hasEmpires)
+                    {
+                        <span>Alliance can't be deleted.</span>
+                    }
+                    else
+                    {
+                        <button class="btn btn-link" @onclick="@(() => Remove(alliance))">
+                            Remove
+                        </button>
+                    }
+                </td>
+
+                <TextCell @bind-Value="@alliance.Name">
+                    @if (DuplicatedName.Contains(alliance))
+                    {
+                        <div class="validation-message">Name must be distinct.</div>
+                    }
+                </TextCell>
+
+                <NumberCell @bind-Value="@alliance.Power"/>
+            </TableRow>
+        }
+        <tr>
+            <td>
+                <button class="btn btn-link" @onclick="@Create">
+                    Create
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<AllianceStatus> Alliances { get; set; }
+
+    private HashSet<Alliance> DuplicatedName { get; set; } = new HashSet<Alliance>();
+
+    private List<string> Columns { get; set; } = new List<string> {"", "Name", "Power"};
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InitAlliances();
+
+        SaveOnClose.PageClosing += async (ctx) => await SubmitChanges(ctx);
+        await SaveOnClose.EnablePreventClosing();
+    }
+
+    private async Task InitAlliances()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<AllianceStatus>>("api/alliances/status")
+            .ConfigureAwait(false);
+        Alliances = result
+            .OrderBy(e => e.Alliance.Id)
+            .ToList();
+    }
+
+    private void Create()
+    {
+        var alliance = new Alliance();
+        Alliances.Add(new AllianceStatus(alliance, false));
+        StateHasChanged();
+    }
+
+    private async Task Remove(Alliance alliance)
+    {
+        Alliances.RemoveAll(e => e.Alliance == alliance);
+        if (DuplicatedName.Contains(alliance))
+        {
+            DuplicatedName.Remove(alliance);
+        }
+
+        if (alliance.Id != 0)
+        {
+            await Http.DeleteAsync($"api/alliances/{alliance.Id}")
+                .ConfigureAwait(false);
+        }
+    }
+
+    private async Task SubmitChanges(EditContext ctx)
+    {
+        if (!ctx.IsModified())
+        {
+            return;
+        }
+
+        var alliance = (Alliance)ctx.Model;
+        if (Alliances.Exists(s => s.Alliance.Id != alliance.Id && s.Alliance.Name == alliance.Name))
+        {
+            DuplicatedName.Add(alliance);
+            return;
+        }
+
+        if (DuplicatedName.Contains(alliance))
+        {
+            DuplicatedName.Remove(alliance);
+        }
+
+        if (alliance.Id == 0)
+        {
+            var created = await Http.PostJsonAsync<Alliance>("api/alliances", alliance);
+            alliance.Id = created.Id;
+        }
+        else
+        {
+            await Http.PutJsonAsync($"api/alliances/{alliance.Id}", alliance);
+        }
+        ctx.MarkAsUnmodified();
+    }
+
+    private void UpdateSelected(EditContext ctx)
+    {
+        SaveOnClose.EditContext = ctx;
+    }
+
+}

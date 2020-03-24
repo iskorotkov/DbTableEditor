@@ -12,56 +12,56 @@ else
 {
     <table class="table table-bordered table-responsive">
         <thead>
-            <tr>
-                @foreach (var column in Columns)
-                {
-                    <th @key="@column" class="divTableHead">@column</th>
-                }
-            </tr>
+        <tr>
+            @foreach (var column in Columns)
+            {
+                <th @key="@column" class="divTableHead">@column</th>
+            }
+        </tr>
         </thead>
         <tbody>
-            @foreach (var ship in Spaceships)
-            {
-                var s = ship;
-                <TableRow Model="@s" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                    <DataAnnotationsValidator />
+        @foreach (var ship in Spaceships)
+        {
+            var s = ship;
+            <TableRow Model="@s" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                <DataAnnotationsValidator/>
 
-                    <td>
-                        <button class="btn btn-link" @onclick="@(() => Remove(s))">
-                            Remove
-                        </button>
-                    </td>
-
-                    <TextCell @bind-Value="@s.Name">
-                        @if (DuplicatedName.Contains(s))
-                        {
-                            <div class="validation-message">Name must be distinct.</div>
-                        }
-                    </TextCell>
-
-                    <NumberCell @bind-Value="@s.Capacity" />
-                    <NumberCell @bind-Value="@s.Energy" />
-                    <NumberCell @bind-Value="@s.Firepower" />
-                    <NumberCell @bind-Value="@s.Fuel" />
-                    <NumberCell @bind-Value="@s.Hull" />
-                    <NumberCell @bind-Value="@s.Speed" />
-                    <NumberCell @bind-Value="@s.Staff" />
-                    <NumberCell @bind-Value="@s.Weight" />
-
-                    <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
-                                    IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
-
-                    <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
-                                    IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)" />
-                </TableRow>
-            }
-            <tr>
                 <td>
-                    <button class="btn btn-link" @onclick="@Create">
-                        Create
+                    <button class="btn btn-link" @onclick="@(() => Remove(s))">
+                        Remove
                     </button>
                 </td>
-            </tr>
+
+                <TextCell @bind-Value="@s.Name">
+                    @if (DuplicatedName.Contains(s))
+                    {
+                        <div class="validation-message">Name must be distinct.</div>
+                    }
+                </TextCell>
+
+                <NumberCell @bind-Value="@s.Capacity"/>
+                <NumberCell @bind-Value="@s.Energy"/>
+                <NumberCell @bind-Value="@s.Firepower"/>
+                <NumberCell @bind-Value="@s.Fuel"/>
+                <NumberCell @bind-Value="@s.Hull"/>
+                <NumberCell @bind-Value="@s.Speed"/>
+                <NumberCell @bind-Value="@s.Staff"/>
+                <NumberCell @bind-Value="@s.Weight"/>
+
+                <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
+                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+
+                <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
+                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+            </TableRow>
+        }
+        <tr>
+            <td>
+                <button class="btn btn-link" @onclick="@Create">
+                    Create
+                </button>
+            </td>
+        </tr>
         </tbody>
     </table>
 }
@@ -73,8 +73,11 @@ else
 
     private HashSet<Spaceship> DuplicatedName { get; set; } = new HashSet<Spaceship>();
 
-    private List<string> Columns { get; set; } = new List<string> { "", "Name", "Capacity",
-        "Energy", "Firepower", "Fuel", "Hull", "Speed", "Staff", "Weight", "Fleet", "Shipyard" };
+    private List<string> Columns { get; set; } = new List<string>
+    {
+        "", "Name", "Capacity",
+        "Energy", "Firepower", "Fuel", "Hull", "Speed", "Staff", "Weight", "Fleet", "Shipyard"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,7 +94,7 @@ else
         var result = await Http.GetJsonAsync<IEnumerable<Fleet>>("api/fleets")
             .ConfigureAwait(false);
         Fleets = result.OrderBy(f => f.Id)
-                       .ToList();
+            .ToList();
     }
 
     private async Task InitShipyards()
@@ -99,7 +102,7 @@ else
         var result = await Http.GetJsonAsync<IEnumerable<Shipyard>>("api/shipyards")
             .ConfigureAwait(false);
         Shipyards = result.OrderBy(s => s.Id)
-                          .ToList();
+            .ToList();
     }
 
     private async Task InitSpaceships()
@@ -168,4 +171,5 @@ else
     {
         SaveOnClose.EditContext = ctx;
     }
+
 }

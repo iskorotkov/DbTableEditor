@@ -15,6 +15,7 @@ namespace DbTableEditor.Data.Model
         [Required]
         public string Name { get; set; }
         public virtual ICollection<AlliancesEntry> AlliancesEntries { get; set; }
+        [Range(0, int.MaxValue)]
         public int Power { get; set; }
 
         public override string ToString()
