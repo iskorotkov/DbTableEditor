@@ -1,0 +1,172 @@
+﻿@page "/alliancesentries"
+@inject HttpClient Http
+@inject SaveOnCloseService SaveOnClose
+
+<h3>Alliances Entries</h3>
+
+@if (Entries == null)
+{
+    <span>Loading data...</span>
+}
+else
+{
+    <table class="table table-bordered table-responsive">
+        <thead>
+        <tr>
+            @foreach (var column in Columns)
+            {
+                <th @key="@column" class="divTableHead">@column</th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Entries)
+        {
+            var entry = item;
+            <TableRow Model="@entry" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                <DataAnnotationsValidator/>
+
+                <td>
+                    <button class="btn btn-link" @onclick="@(() => Remove(entry))">
+                        Remove
+                    </button>
+                </td>
+
+                <SelectItemCell @bind-Value="@entry.AllianceId" Elements="@Alliances"
+                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                    @if (DuplicatedName.Contains(entry))
+                    {
+                        <div class="validation-message">Alliance-Empire pair must be unique.</div>
+                    }
+                </SelectItemCell>
+                
+                <SelectItemCell @bind-Value="@entry.EmpireId" Elements="@Empires"
+                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                    @if (DuplicatedName.Contains(entry))
+                    {
+                        <div class="validation-message">Alliance-Empire pair must be unique.</div>
+                    }
+                </SelectItemCell>
+
+                <NumberCell @bind-Value="@entry.EntryYear"/>
+            </TableRow>
+        }
+        <tr>
+            <td>
+                <button class="btn btn-link" @onclick="@Create">
+                    Create
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<AlliancesEntry> Entries { get; set; }
+    private List<Alliance> Alliances { get; set; }
+    private List<Empire> Empires { get; set; }
+
+    private HashSet<AlliancesEntry> DuplicatedName { get; set; } = new HashSet<AlliancesEntry>();
+
+    private List<string> Columns { get; set; } = new List<string> {"", "Alliance", "Empire", "Entry Year"};
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InitAlliances();
+        await InitEmpires();
+        await InitEntries();
+
+        SaveOnClose.PageClosing += async (ctx) => await SubmitChanges(ctx);
+        await SaveOnClose.EnablePreventClosing();
+    }
+
+    private async Task InitAlliances()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Alliance>>("api/alliances")
+            .ConfigureAwait(false);
+        Alliances = result
+            .OrderBy(e => e.Id)
+            .ToList();
+    }
+
+    private async Task InitEmpires()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Empire>>("api/empires")
+            .ConfigureAwait(false);
+        Empires = result
+            .OrderBy(e => e.Id)
+            .ToList();
+    }
+
+    private async Task InitEntries()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<AlliancesEntry>>("api/alliancesentries")
+            .ConfigureAwait(false);
+        Entries = result
+            .OrderBy(e => e.Id)
+            .ToList();
+    }
+
+    private void Create()
+    {
+        var entry = new AlliancesEntry();
+        Entries.Add(entry);
+        StateHasChanged();
+    }
+
+    private async Task Remove(AlliancesEntry entry)
+    {
+        Entries.Remove(entry);
+        if (DuplicatedName.Contains(entry))
+        {
+            DuplicatedName.Remove(entry);
+        }
+
+        if (entry.Id != 0)
+        {
+            await Http.DeleteAsync($"api/alliancesentries/{entry.Id}")
+                .ConfigureAwait(false);
+        }
+    }
+
+    private async Task SubmitChanges(EditContext ctx)
+    {
+        if (!ctx.IsModified())
+        {
+            return;
+        }
+
+        var entry = (AlliancesEntry)ctx.Model;
+        if (Entries.Exists(s =>
+            s.Id != entry.Id
+            && s.EmpireId == entry.EmpireId
+            && s.AllianceId == entry.AllianceId))
+        {
+            DuplicatedName.Add(entry);
+            return;
+        }
+
+        if (DuplicatedName.Contains(entry))
+        {
+            DuplicatedName.Remove(entry);
+        }
+
+        if (entry.Id == 0)
+        {
+            var created = await Http.PostJsonAsync<AlliancesEntry>("api/alliancesentries", entry);
+            entry.Id = created.Id;
+        }
+        else
+        {
+            await Http.PutJsonAsync($"api/alliancesentries/{entry.Id}", entry);
+        }
+        ctx.MarkAsUnmodified();
+    }
+
+    private void UpdateSelected(EditContext ctx)
+    {
+        SaveOnClose.EditContext = ctx;
+    }
+
+}
