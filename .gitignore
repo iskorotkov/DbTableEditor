@@ -6,3 +6,4 @@
 Stylecop.*
 *.Stylecop
 *.zip
+node_modules
