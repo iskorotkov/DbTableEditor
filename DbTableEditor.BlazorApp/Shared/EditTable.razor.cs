@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DbTableEditor.BlazorApp.Shared
 {
-    public abstract partial class EditTable<T> : ComponentBase
+    public partial class EditTable<T> : ComponentBase
         where T : new()
     {
         protected EditTable(HttpClient http, SaveOnCloseService saveOnClose)
