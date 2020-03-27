@@ -1,5 +1,7 @@
 ﻿using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -21,6 +23,7 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/Spaceships
         [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<IEnumerable<Spaceship>>> GetSpaceships()
         {
             return await _context.Spaceships.ToListAsync();

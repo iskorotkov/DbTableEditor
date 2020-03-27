@@ -1,11 +1,17 @@
+using DbTableEditor.Auth.Context;
 using DbTableEditor.Data.Context;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Linq;
+using System.Text;
 
 namespace DbTableEditor.Api
 {
@@ -22,6 +28,26 @@ namespace DbTableEditor.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<SpaceshipsContext>();
+            services.AddDbContext<AuthDbContext>();
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AuthDbContext>()
+                .AddDefaultTokenProviders();
+
+            var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtKey)
+                        ),
+                        ClockSkew = TimeSpan.Zero
+                    });
 
             services.AddMvc();
             services.AddResponseCompression(options =>
@@ -43,6 +69,8 @@ namespace DbTableEditor.Api
             app.UseStaticFiles();
             app.UseClientSideBlazorFiles<BlazorApp.Program>();
             app.UseRouting();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

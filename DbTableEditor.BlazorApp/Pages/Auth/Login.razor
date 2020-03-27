@@ -1,0 +1,39 @@
+﻿@page "/login"
+@inject HttpClient HttpClient
+@inject ILoginService LoginService
+@inject NavigationManager NavManager
+
+<h3>Login</h3>
+
+<EditForm Model="@_userInfo" OnValidSubmit="@LoginUser">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label>Email:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@_userInfo.Email" />
+            <ValidationMessage For="@(() => _userInfo.Email)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Password:</label>
+        <div>
+            <InputPassword class="form-control" @bind-Value="@_userInfo.Password" />
+            <ValidationMessage For="@(() => _userInfo.Password)" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Log in</button>
+</EditForm>
+
+@code {
+    private UserInfo _userInfo = new UserInfo();
+
+    private async Task LoginUser()
+    {
+        var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts", _userInfo);
+        await LoginService.Login(result.Token);
+        NavManager.NavigateTo("/");
+    }
+}

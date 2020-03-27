@@ -1,0 +1,38 @@
+﻿@page "/counter"
+@attribute [Authorize]
+
+<h3>Counter</h3>
+
+<div>
+    <text>Value = @Value</text>
+</div>
+
+<div>
+    <button @onclick="Increment">Increment</button>
+</div>
+
+<AuthorizeView>
+    <Authorized>Authenticated</Authorized>
+    <NotAuthorized>You are not authorized to do this</NotAuthorized>
+    <Authorizing>Authorizing...</Authorizing>
+</AuthorizeView>
+
+@code {
+    private int Value { get; set; }
+
+    [CascadingParameter] private Task<AuthenticationState> State { get; set; }
+
+    private async Task Increment()
+    {
+        var state = await State;
+        var user = state.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            Value++;
+        }
+        else
+        {
+            Value--;
+        }
+    }
+}
