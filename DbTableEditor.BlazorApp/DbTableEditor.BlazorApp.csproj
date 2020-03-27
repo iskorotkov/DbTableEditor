@@ -28,4 +28,8 @@
     <TypeScriptCompile Include="wwwroot\scripts\saveOnClose.ts" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <BlazorLinkOnBuild  Condition="'$(Configuration)'!='Release'">false</BlazorLinkOnBuild>
+  </PropertyGroup>
+
 </Project>
