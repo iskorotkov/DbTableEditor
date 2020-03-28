@@ -26,7 +26,7 @@ namespace DbTableEditor.Api.Controllers.Auth
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _configuration;
 
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
             var user = new IdentityUser
@@ -42,6 +42,22 @@ namespace DbTableEditor.Api.Controllers.Auth
             else
             {
                 return BadRequest("Username or password is invalid");
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<UserToken>> Login([FromBody] UserInfo userInfo)
+        {
+            var result = await _signInManager.PasswordSignInAsync(userInfo.Email,
+                userInfo.Password, isPersistent: false, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                return BuildToken(userInfo);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return BadRequest(ModelState);
             }
         }
 

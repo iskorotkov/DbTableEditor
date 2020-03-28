@@ -32,7 +32,7 @@
 
     private async Task CreateUser()
     {
-        var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts", _userInfo);
+        var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/register", _userInfo);
         await LoginService.Login(result.Token);
         NavManager.NavigateTo("/");
     }

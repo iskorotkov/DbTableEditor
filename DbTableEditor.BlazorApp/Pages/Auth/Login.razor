@@ -32,7 +32,7 @@
 
     private async Task LoginUser()
     {
-        var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts", _userInfo);
+        var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/login", _userInfo);
         await LoginService.Login(result.Token);
         NavManager.NavigateTo("/");
     }
