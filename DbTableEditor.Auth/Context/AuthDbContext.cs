@@ -13,15 +13,14 @@ namespace DbTableEditor.Auth.Context
 
         }
 
-        public DbSet<Person> People { get; set; }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
                 var username = Environment.GetEnvironmentVariable("POSTGRESQL_USERNAME");
                 var password = Environment.GetEnvironmentVariable("POSTGRESQL_PASSWORD");
-                optionsBuilder.UseNpgsql($"Host=localhost;Database=spaceships_auth;Username={username};Password={password}");
+                optionsBuilder.UseNpgsql($"Host=localhost;Database=spaceships_auth;Username={username};Password={password}",
+                    options => options.MigrationsAssembly("DbTableEditor.Api"));
             }
         }
     }

@@ -48,20 +48,6 @@ namespace DbTableEditor.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "People",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Username = table.Column<string>(nullable: false),
-                    Password = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_People", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -221,9 +207,6 @@ namespace DbTableEditor.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "People");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
