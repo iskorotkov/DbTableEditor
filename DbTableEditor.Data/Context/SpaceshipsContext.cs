@@ -70,8 +70,8 @@ namespace DbTableEditor.Data.Context
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var username = Environment.GetEnvironmentVariable("POSTGRESQL_USERNAME");
-                var password = Environment.GetEnvironmentVariable("POSTGRESQL_PASSWORD");
+                var username = Environment.GetEnvironmentVariable("PGUSER");
+                var password = Environment.GetEnvironmentVariable("PGPASSWORD");
                 optionsBuilder.UseNpgsql($"Host=localhost;Database=spaceships;Username={username};Password={password}",
                     builder => builder.MigrationsAssembly("DbTableEditor.AspNetApp"));
             }
