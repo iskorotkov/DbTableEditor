@@ -17,8 +17,8 @@ namespace DbTableEditor.Auth.Context
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var username = Environment.GetEnvironmentVariable("POSTGRESQL_USERNAME");
-                var password = Environment.GetEnvironmentVariable("POSTGRESQL_PASSWORD");
+                var username = Environment.GetEnvironmentVariable("PGUSER");
+                var password = Environment.GetEnvironmentVariable("PGPASSWORD");
                 optionsBuilder.UseNpgsql($"Host=localhost;Database=spaceships_auth;Username={username};Password={password}",
                     options => options.MigrationsAssembly("DbTableEditor.Api"));
             }
