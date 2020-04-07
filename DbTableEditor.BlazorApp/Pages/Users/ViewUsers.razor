@@ -1,0 +1,39 @@
+﻿@page "/Users"
+@attribute [Authorize]
+
+@if (Users != null)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var user in Users)
+            {
+                <tr>
+                    <th>@user.Email</th>
+
+                    <th>
+                        <button>Edit roles</button>
+                        <button>Delete</button>
+                    </th>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <span>No users were created.</span>
+}
+
+@code {
+
+    [Parameter]
+    public List<UserInfo> Users { get; set; }
+
+}
