@@ -31,7 +31,7 @@ namespace DbTableEditor.Api.Controllers.Auth
         private readonly IConfiguration _configuration;
 
         [HttpPost("register")]
-        public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
+        public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserCredentials model)
         {
             var user = new IdentityUser
             {
@@ -50,7 +50,7 @@ namespace DbTableEditor.Api.Controllers.Auth
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserToken>> Login([FromBody] UserInfo userInfo)
+        public async Task<ActionResult<UserToken>> Login([FromBody] UserCredentials userInfo)
         {
             var result = await _signInManager.PasswordSignInAsync(userInfo.Email,
                 userInfo.Password, isPersistent: false, lockoutOnFailure: false);
@@ -69,14 +69,34 @@ namespace DbTableEditor.Api.Controllers.Auth
         public async Task<ActionResult<IEnumerable<UserInfo>>> GetUsers()
         {
             return await _userManager.Users
-                .Select(user => new UserInfo
-                {
-                    Email = user.Email,
-                })
+                .Select(user => CreateUserFromIdentity(user))
                 .ToListAsync();
         }
 
-        private UserToken BuildToken(UserInfo userInfo)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<UserInfo>> DeleteUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            await _userManager.DeleteAsync(user);
+            return CreateUserFromIdentity(user);
+        }
+
+        private static UserInfo CreateUserFromIdentity(IdentityUser user)
+        {
+            return new UserInfo
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                Role = "Test"
+            };
+        }
+
+        private UserToken BuildToken(UserCredentials userInfo)
         {
             var claims = new[]
             {

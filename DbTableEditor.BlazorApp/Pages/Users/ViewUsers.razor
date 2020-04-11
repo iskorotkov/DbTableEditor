@@ -10,6 +10,7 @@
             <thead>
                 <tr>
                     <th>Username</th>
+                    <th>Role</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -17,12 +18,16 @@
             <tbody>
                 @foreach (var user in Users)
                 {
+                    var currentUser = user;
                     <tr>
-                        <th>@user.Email</th>
+                        <th>@user.Username</th>
+                        
+                        <th>@user.Role</th>
 
                         <th>
                             <button>Edit roles</button>
-                            <button>Delete</button>
+                            <button>Change password</button>
+                            <button @onclick="@(() => DeleteUser(currentUser))">Delete</button>
                         </th>
                     </tr>
                 }
@@ -49,6 +54,19 @@ else
         var result = await HttpClient.GetJsonAsync<IEnumerable<UserInfo>>("api/accounts");
         Users = result.ToList();
         _usersLoaded = true;
+    }
+
+    private async Task DeleteUser(UserInfo user)
+    {
+        try
+        {
+            Users.Remove(user);
+            await HttpClient.DeleteAsync($"api/accounts/{user.Id}");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
 }

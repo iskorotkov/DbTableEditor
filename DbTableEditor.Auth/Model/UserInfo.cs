@@ -1,12 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace DbTableEditor.Auth.Model
+﻿namespace DbTableEditor.Auth.Model
 {
     public class UserInfo
     {
-        [Required, EmailAddress]
-        public string Email { get; set; }
-        [Required, DataType(DataType.Password)]
-        public string Password { get; set; }
+        public string Id { get; set; }
+        public string Username { get; set; }
+        public string Role { get; set; }
     }
 }

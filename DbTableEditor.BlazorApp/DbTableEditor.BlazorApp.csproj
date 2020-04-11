@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <!--<BlazorLinkOnBuild Condition="'$(Configuration)'!='Release'">false</BlazorLinkOnBuild>-->
+    <BlazorLinkOnBuild Condition="'$(Configuration)'!='Release'">false</BlazorLinkOnBuild>
   </PropertyGroup>
 
 </Project>
