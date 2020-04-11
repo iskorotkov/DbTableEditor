@@ -4,10 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace DbTableEditor.Api.Controllers.Auth
 {
@@ -59,6 +63,17 @@ namespace DbTableEditor.Api.Controllers.Auth
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return BadRequest(ModelState);
             }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserInfo>>> GetUsers()
+        {
+            return await _userManager.Users
+                .Select(user => new UserInfo
+                {
+                    Email = user.Email,
+                })
+                .ToListAsync();
         }
 
         private UserToken BuildToken(UserInfo userInfo)

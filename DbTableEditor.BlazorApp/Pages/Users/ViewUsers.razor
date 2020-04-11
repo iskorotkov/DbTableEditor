@@ -1,39 +1,54 @@
 ﻿@page "/Users"
 @attribute [Authorize]
+@inject HttpClient HttpClient
 
-@if (Users != null)
+@if (_usersLoaded)
 {
-    <table>
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach (var user in Users)
-            {
+    @if (Users != null)
+    {
+        <table>
+            <thead>
                 <tr>
-                    <th>@user.Email</th>
-
-                    <th>
-                        <button>Edit roles</button>
-                        <button>Delete</button>
-                    </th>
+                    <th>Username</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+
+            <tbody>
+                @foreach (var user in Users)
+                {
+                    <tr>
+                        <th>@user.Email</th>
+
+                        <th>
+                            <button>Edit roles</button>
+                            <button>Delete</button>
+                        </th>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <span>No users were created.</span>
+    }
 }
 else
 {
-    <span>No users were created.</span>
+    <span>Loading...</span>
 }
 
 @code {
 
-    [Parameter]
-    public List<UserInfo> Users { get; set; }
+    private List<UserInfo> Users { get; set; }
+    private bool _usersLoaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await HttpClient.GetJsonAsync<IEnumerable<UserInfo>>("api/accounts");
+        Users = result.ToList();
+        _usersLoaded = true;
+    }
 
 }
