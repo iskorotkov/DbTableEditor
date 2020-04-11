@@ -1,14 +1,14 @@
-﻿using DbTableEditor.Data.Context;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace DbTableEditor.Api.Controllers
+namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]

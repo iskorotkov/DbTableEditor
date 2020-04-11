@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
 using DbTableEditor.Data.Wrappers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace DbTableEditor.Api.Controllers
+namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]

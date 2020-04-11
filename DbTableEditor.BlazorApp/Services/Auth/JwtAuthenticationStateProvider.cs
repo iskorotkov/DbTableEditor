@@ -1,7 +1,4 @@
-﻿using DbTableEditor.BlazorApp.Extensions;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -9,8 +6,11 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DbTableEditor.BlazorApp.Extensions;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 
-namespace DbTableEditor.BlazorApp.Auth
+namespace DbTableEditor.BlazorApp.Services.Auth
 {
     public class JwtAuthenticationStateProvider : AuthenticationStateProvider, ILoginService
     {

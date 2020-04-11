@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace DbTableEditor.BlazorApp.Auth
+namespace DbTableEditor.BlazorApp.Services.Auth
 {
     public interface ILoginService
     {

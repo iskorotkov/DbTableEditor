@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Components.Forms;
 
-namespace DbTableEditor.BlazorApp.Shared
+namespace DbTableEditor.BlazorApp.Shared.Input
 {
     public class InputSelectNumber<TValue> : InputSelect<TValue>
     {
