@@ -1,17 +1,16 @@
-﻿using DbTableEditor.Auth.Model;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using DbTableEditor.Auth.Model;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DbTableEditor.Api.Controllers.Auth
 {
@@ -19,16 +18,18 @@ namespace DbTableEditor.Api.Controllers.Auth
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        public AccountsController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration)
+        private readonly IConfiguration _configuration;
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public AccountsController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
         }
-
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly IConfiguration _configuration;
 
         [HttpPost("register")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserCredentials model)
@@ -41,28 +42,58 @@ namespace DbTableEditor.Api.Controllers.Auth
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
+                await SetRole(user.UserName, model.Role);
                 return BuildToken(model);
             }
-            else
+
+            return BadRequest("Username or password is invalid");
+        }
+
+        [HttpPost("{userId}/role/{roleName}")]
+        public async Task<ActionResult> SetRole(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
-                return BadRequest("Username or password is invalid");
+                return NotFound();
             }
+
+            await _userManager.AddToRoleAsync(user, roleName);
+            return Ok();
+        }
+
+        [HttpPost("{userId}/password/{password}")]
+        public async Task<ActionResult> SetPassword(string userId, string password)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, password);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest("New password is invalid.");
+            }
+
+            return Ok();
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserCredentials userInfo)
         {
             var result = await _signInManager.PasswordSignInAsync(userInfo.Email,
-                userInfo.Password, isPersistent: false, lockoutOnFailure: false);
+                userInfo.Password, false, false);
             if (result.Succeeded)
             {
                 return BuildToken(userInfo);
             }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                return BadRequest(ModelState);
-            }
+
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            return BadRequest(ModelState);
         }
 
         [HttpGet]
