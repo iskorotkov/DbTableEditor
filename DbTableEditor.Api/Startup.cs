@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Linq;
 using System.Text;
+using DbTableEditor.Api.Extensions;
 
 namespace DbTableEditor.Api
 {
@@ -32,8 +33,9 @@ namespace DbTableEditor.Api
 
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<AuthDbContext>()
+                .AddRoles<IdentityRole>()
                 .AddDefaultTokenProviders();
-
+            
             var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -58,7 +60,7 @@ namespace DbTableEditor.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider services)
         {
             if (env.IsDevelopment())
             {
@@ -78,6 +80,10 @@ namespace DbTableEditor.Api
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToClientSideBlazor<BlazorApp.Program>("index.html");
             });
+
+            services.ConfigureRoles()
+                .GetAwaiter()
+                .GetResult();
         }
     }
 }
