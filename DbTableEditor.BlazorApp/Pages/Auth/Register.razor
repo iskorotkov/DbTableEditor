@@ -1,4 +1,5 @@
 ﻿@page "/register"
+@page "/register/{ReturnUrl}"
 @inject HttpClient HttpClient
 @inject ILoginService LoginService
 @inject NavigationManager NavManager
@@ -33,7 +34,7 @@
                     <option value="@role">@role</option>
                 }
             </InputSelect>
-            <ValidationMessage For="@(() => _userInfo.Role)"/>
+            <ValidationMessage For="@(() => _userInfo.Role)" />
         </div>
     </div>
 
@@ -43,6 +44,9 @@
 @code {
     private readonly UserCredentials _userInfo = new UserCredentials();
     private readonly List<string> _roles = new List<string> { "Editor", "Admin" };
+
+    [Parameter]
+    public string ReturnUrl { get; set; }
 
     public Register()
     {
@@ -67,7 +71,15 @@
         }
 
         var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/register", _userInfo);
-        await LoginService.Login(result.Token);
-        NavManager.NavigateTo("/");
+
+        if (string.IsNullOrWhiteSpace(ReturnUrl))
+        {
+            await LoginService.Login(result.Token);
+            NavManager.NavigateTo("/");
+        }
+        else
+        {
+            NavManager.NavigateTo(ReturnUrl);
+        }
     }
 }

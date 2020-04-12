@@ -58,6 +58,10 @@
                 }
             </tbody>
         </table>
+
+        <button @onclick="@AddUser" class="btn btn-primary">
+            Add user
+        </button>
     }
     else
     {
@@ -145,5 +149,12 @@ else
     {
         _passwordChange.UserId = currentUser.Id;
         _passwordChange.Password = "";
+    }
+
+    private void AddUser()
+    {
+        var address = NavManager.Uri;
+        address = NavManager.ToBaseRelativePath(address);
+        NavManager.NavigateTo($"register/{address}");
     }
 }
