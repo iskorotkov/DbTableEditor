@@ -1,29 +1,33 @@
-﻿<button @onclick="Show" @attributes="@AdditionalAttributes" type="button">
+﻿<button @onclick=Show @attributes=@AdditionalAttributes type=button>
     @ButtonText
 </button>
 
-@if (_isShown)
+@if (IsShown)
 {
-    <div class="fade modal show" tabindex="-1" role="dialog" style="display:block;">
+    <div class="fade modal show" role="dialog" style="display: block;" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class=modal-content>
-                <div class=modal-header>
+            <div class="modal-content">
+
+                <div class="modal-header">
                     <h5 class=modal-title>@DialogTitle</h5>
                 </div>
+
                 <div class=modal-body>
                     @ChildContent
                 </div>
-                <div class=modal-footer>
-                    <button @onclick="Cancel" class="btn btn-secondary" data-dismiss=modal type="reset">Close</button>
+
+                <div class="modal-footer">
+                    <button @onclick="Cancel" class="btn btn-secondary" data-dismiss="modal" type="reset">Close</button>
                     <button @onclick="Submit" class="btn btn-primary" type="submit">Save changes</button>
                 </div>
+
             </div>
         </div>
     </div>
 }
 
-@code {
-
+@code
+{
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> AdditionalAttributes { get; set; }
 
@@ -51,11 +55,11 @@
     [Parameter]
     public bool CloseOnCancel { get; set; } = true;
 
-    private bool _isShown;
+    protected bool IsShown { get; private set; }
 
     public async Task Show()
     {
-        _isShown = true;
+        IsShown = true;
         StateHasChanged();
 
         if (OnOpen.HasDelegate)
@@ -66,7 +70,7 @@
 
     public async Task Hide()
     {
-        _isShown = false;
+        IsShown = false;
         StateHasChanged();
 
         if (OnClose.HasDelegate)
@@ -75,7 +79,7 @@
         }
     }
 
-    private async Task Submit()
+    protected async Task Submit()
     {
         if (OnSubmit.HasDelegate)
         {
@@ -83,7 +87,7 @@
         }
     }
 
-    private async Task Cancel()
+    protected async Task Cancel()
     {
         if (OnCancel.HasDelegate)
         {
@@ -95,5 +99,4 @@
             await Hide();
         }
     }
-
 }

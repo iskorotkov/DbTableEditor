@@ -22,14 +22,37 @@
                     var currentUser = user;
                     <tr>
                         <th>@user.Username</th>
-                        
+
                         <th>@user.Role</th>
 
                         <th>
-                            <button class="btn btn-outline-secondary">Edit roles</button>
-                            <button class="btn btn-outline-secondary">Change password</button>
+                            <FormDialog @ref="@_roleDialog" ButtonText="Edit roles" DialogTitle="Edit roles"
+                                         class="btn btn-outline-secondary" OnOpen="@(() => OnRoleDialogOpen(currentUser))"
+                                         Model="@_roleChange" OnFormValidSubmit="@SubmitRole">
+
+                                <InputSelect @bind-Value="@_roleChange.Role">
+                                    @foreach (var role in _roles)
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => _roleChange.Role)"/>
+
+                            </FormDialog>
+
+                            <FormDialog @ref="@_passwordDialog" ButtonText="Change password" DialogTitle="Change password"
+                                         class="btn btn-outline-secondary" OnOpen="@(() => OnPasswordDialogOpen(currentUser))"
+                                         Model="@_passwordChange" OnFormValidSubmit="@SubmitPassword">
+
+                                <InputPassword @bind-Value="@_passwordChange.Password"/>
+                                <ValidationMessage For="@(() => _passwordChange.Password)"/>
+
+                            </FormDialog>
+
                             <button @onclick="@(() => DeleteUser(currentUser))"
-                                     class="btn btn-warning">Delete</button>
+                                     class="btn btn-warning">
+                                Delete
+                            </button>
                         </th>
                     </tr>
                 }
@@ -46,12 +69,20 @@ else
     <span>Loading...</span>
 }
 
-@code {
-
-    [CascadingParameter] public Task<AuthenticationState> AuthState { get; set; }
+@code
+{
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
 
     private List<UserInfo> Users { get; set; }
     private bool _usersLoaded;
+
+    private readonly PasswordChange _passwordChange = new PasswordChange();
+    private readonly RoleChange _roleChange = new RoleChange();
+    private readonly List<string> _roles = new List<string> { "Editor", "Admin" };
+
+    private PopupDialog _passwordDialog;
+    private PopupDialog _roleDialog;
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,4 +110,23 @@ else
         }
     }
 
+    private async Task SubmitRole(EditContext context)
+    {
+        await _roleDialog.Hide();
+    }
+
+    private async Task SubmitPassword(EditContext context)
+    {
+        await _passwordDialog.Hide();
+    }
+
+    private void OnRoleDialogOpen(UserInfo currentUser)
+    {
+        _roleChange.Role = currentUser.Role;
+    }
+
+    private void OnPasswordDialogOpen(UserInfo currentUser)
+    {
+        _passwordChange.Password = "";
+    }
 }

@@ -1,0 +1,51 @@
+﻿@inherits PopupDialog
+
+<button @onclick=Show @attributes=@AdditionalAttributes type=button>
+    @ButtonText
+</button>
+
+@if (IsShown)
+{
+    <div class="fade modal show" role="dialog" style="display: block;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <EditForm class="modal-content" EditContext="@EditContext"
+                      Model="@Model" OnSubmit="@OnFormSubmit" OnValidSubmit="@OnFormValidSubmit"
+                      @OnInvalidSubmit="@OnFormInvalidSubmit">
+                
+                <DataAnnotationsValidator />
+
+                <div class="modal-header">
+                    <h5 class="modal-title">@DialogTitle</h5>
+                </div>
+
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+
+                <div class="modal-footer">
+                    <button @onclick="Cancel" class="btn btn-secondary" data-dismiss="modal" type="reset">Close</button>
+                    <button @onclick="Submit" class="btn btn-primary" type="submit">Save changes</button>
+                </div>
+
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    public EditContext EditContext { get; set; }
+
+    [Parameter]
+    public object Model { get; set; }
+
+    [Parameter]
+    public EventCallback<EditContext> OnFormSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback<EditContext> OnFormValidSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback<EditContext> OnFormInvalidSubmit { get; set; }
+}
