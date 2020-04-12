@@ -1,43 +1,45 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿<div class="navbar navbar-dark pl-4 top-row">
     <a class="navbar-brand" href="">Table Editor</a>
 </div>
 
-<ul class="nav flex-column">
+<ul class="flex-column nav">
     <li class="nav-item px-3">
         <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-            <span class="oi oi-home" aria-hidden="true"></span>Home
+            <span aria-hidden="true" class="oi oi-home"></span>Home
         </NavLink>
     </li>
     <li class="nav-item px-3">
         <NavLink class="nav-link" href="/spaceships">
-            <span class="oi oi-arrow-top" aria-hidden="true"></span>Spaceships
+            <span aria-hidden="true" class="oi oi-arrow-top"></span>Spaceships
         </NavLink>
     </li>
     <li class="nav-item px-3">
         <NavLink class="nav-link" href="/fleets">
-            <span class="oi oi-list" aria-hidden="true"></span>Fleets
+            <span aria-hidden="true" class="oi oi-list"></span>Fleets
         </NavLink>
     </li>
     <li class="nav-item px-3">
         <NavLink class="nav-link" href="/alliances">
-            <span class="oi oi-chat" aria-hidden="true"></span>Alliances
+            <span aria-hidden="true" class="oi oi-chat"></span>Alliances
         </NavLink>
     </li>
     <li class="nav-item px-3">
         <NavLink class="nav-link" href="/empires">
-            <span class="oi oi-command" aria-hidden="true"></span>Empires
+            <span aria-hidden="true" class="oi oi-command"></span>Empires
         </NavLink>
     </li>
 
     <li class="nav-item px-3">
         <NavLink class="nav-link" href="/alliancesentries">
-            <span class="oi oi-calendar" aria-hidden="true"></span>Alliances Entries
+            <span aria-hidden="true" class="oi oi-calendar"></span>Alliances Entries
         </NavLink>
     </li>
 
     <li class="nav-item px-3">
-        <NavLink class="nav-link" href="/Users">
-            <span class="oi oi-account-login" aria-hidden="true"></span>Users
-        </NavLink>
+        <AuthorizeView Roles="Admin">
+            <NavLink class="nav-link" href="/Users">
+                <span aria-hidden="true" class="oi oi-account-login"></span>Users
+            </NavLink>
+        </AuthorizeView>
     </li>
 </ul>

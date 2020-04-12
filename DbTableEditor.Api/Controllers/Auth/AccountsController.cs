@@ -113,7 +113,8 @@ namespace DbTableEditor.Api.Controllers.Auth
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
                 new Claim(ClaimTypes.Name, userInfo.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, userInfo.Role) 
             };
 
             var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
