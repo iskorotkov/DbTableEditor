@@ -24,14 +24,48 @@
         </div>
     </div>
 
+    <div class="form-group">
+        <label>Role:</label>
+        <div>
+            <InputSelect @bind-Value="_userInfo.Role">
+                @foreach (var role in _roles)
+                {
+                    <option value="@role">@role</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => _userInfo.Role)"/>
+        </div>
+    </div>
+
     <button type="submit" class="btn btn-primary">Register</button>
 </EditForm>
 
 @code {
-    private UserCredentials _userInfo = new UserCredentials();
+    private readonly UserCredentials _userInfo = new UserCredentials();
+    private readonly List<string> _roles = new List<string> { "Editor", "Admin" };
+
+    public Register()
+    {
+        _userInfo.Role = _roles[0];
+    }
 
     private async Task CreateUser()
     {
+        if (string.IsNullOrWhiteSpace(_userInfo.Email))
+        {
+            throw new ArgumentException("User data is invalid", nameof(_userInfo.Email));
+        }
+
+        if (string.IsNullOrWhiteSpace(_userInfo.Password))
+        {
+            throw new ArgumentException("User data is invalid", nameof(_userInfo.Password));
+        }
+
+        if (string.IsNullOrWhiteSpace(_userInfo.Role))
+        {
+            throw new ArgumentException("User data is invalid", nameof(_userInfo.Role));
+        }
+
         var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/register", _userInfo);
         await LoginService.Login(result.Token);
         NavManager.NavigateTo("/");
