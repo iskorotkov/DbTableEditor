@@ -1,12 +1,13 @@
 ﻿@page "/Users"
 @attribute [Authorize]
 @inject HttpClient HttpClient
+@inject NavigationManager NavManager
 
 @if (_usersLoaded)
 {
     @if (Users != null)
     {
-        <table>
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Username</th>
@@ -25,9 +26,10 @@
                         <th>@user.Role</th>
 
                         <th>
-                            <button>Edit roles</button>
-                            <button>Change password</button>
-                            <button @onclick="@(() => DeleteUser(currentUser))">Delete</button>
+                            <button class="btn btn-outline-secondary">Edit roles</button>
+                            <button class="btn btn-outline-secondary">Change password</button>
+                            <button @onclick="@(() => DeleteUser(currentUser))"
+                                     class="btn btn-warning">Delete</button>
                         </th>
                     </tr>
                 }
@@ -46,6 +48,8 @@ else
 
 @code {
 
+    [CascadingParameter] public Task<AuthenticationState> AuthState { get; set; }
+
     private List<UserInfo> Users { get; set; }
     private bool _usersLoaded;
 
@@ -62,6 +66,12 @@ else
         {
             Users.Remove(user);
             await HttpClient.DeleteAsync($"api/accounts/{user.Id}");
+
+            var state = await AuthState;
+            if (state.User.Identity.Name == user.Username)
+            {
+                NavManager.NavigateTo("logout");
+            }
         }
         catch (Exception e)
         {
