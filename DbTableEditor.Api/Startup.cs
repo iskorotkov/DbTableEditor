@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Linq;
 using System.Text;
+using DbTableEditor.Api.Controllers.Auth;
 using DbTableEditor.Api.Extensions;
 
 namespace DbTableEditor.Api
@@ -28,9 +29,14 @@ namespace DbTableEditor.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Db Contexts
             services.AddDbContext<SpaceshipsContext>();
             services.AddDbContext<AuthDbContext>();
 
+            // Controllers
+            services.AddScoped<RolesController>();
+
+            // Identity
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<AuthDbContext>()
                 .AddRoles<IdentityRole>()

@@ -9,7 +9,6 @@ using DbTableEditor.Auth.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace DbTableEditor.Api.Controllers.Auth
@@ -18,17 +17,16 @@ namespace DbTableEditor.Api.Controllers.Auth
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly SignInManager<IdentityUser> _signInManager;
-
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RolesController _rolesController;
 
         public AccountsController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration)
+            RolesController rolesController)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configuration = configuration;
+            _rolesController = rolesController;
         }
 
         [HttpPost("register")]
@@ -47,45 +45,12 @@ namespace DbTableEditor.Api.Controllers.Auth
                     UserId = user.Id,
                     Role = model.Role
                 };
-                await SetRole(role);
+                await _rolesController.Add(role);
 
                 return BuildToken(model);
             }
 
             return BadRequest("Username or password is invalid");
-        }
-
-        [HttpPost("role")]
-        public async Task<ActionResult> SetRole(RoleChange change)
-        {
-            var user = await _userManager.FindByIdAsync(change.UserId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            await _userManager.AddToRoleAsync(user, change.Role);
-            return Ok();
-        }
-
-        [HttpPost("password")]
-        public async Task<ActionResult> SetPassword(PasswordChange change)
-        {
-            var user = await _userManager.FindByIdAsync(change.UserId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var result = await _userManager.ResetPasswordAsync(user, token, change.Password);
-
-            if (!result.Succeeded)
-            {
-                return BadRequest("New password is invalid.");
-            }
-
-            return Ok();
         }
 
         [HttpPost("login")]

@@ -114,8 +114,17 @@ else
     {
         await _roleDialog.Hide();
 
-        var roleModel = (RoleChange) context.Model;
-        await HttpClient.PostJsonAsync("api/accounts/role", roleModel);
+        var newRole = (RoleChange) context.Model;
+        var oldRole = new RoleChange
+        {
+            UserId = newRole.UserId,
+            Role = user.Roles.First()
+        };
+        await HttpClient.PostJsonAsync("api/roles/remove", oldRole);
+        await HttpClient.PostJsonAsync("api/roles/add", newRole);
+
+        user.Roles.Remove(oldRole.Role);
+        user.Roles.Add(newRole.Role);
     }
 
     private async Task SubmitPassword(UserInfo user, EditContext context)
@@ -123,7 +132,7 @@ else
         await _passwordDialog.Hide();
 
         var passwordModel = (PasswordChange) context.Model;
-        await HttpClient.PostJsonAsync("api/accounts/password", passwordModel); 
+        await HttpClient.PostJsonAsync("api/passwords", passwordModel);
     }
 
     private void OnRoleDialogOpen(UserInfo currentUser)
