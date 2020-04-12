@@ -23,12 +23,12 @@
                     <tr>
                         <th>@user.Username</th>
 
-                        <th>@user.Role</th>
+                        <th>@user.Roles.FirstOrDefault()</th>
 
                         <th>
                             <FormDialog @ref="@_roleDialog" ButtonText="Edit roles" DialogTitle="Edit roles"
                                          class="btn btn-outline-secondary" OnOpen="@(() => OnRoleDialogOpen(currentUser))"
-                                         Model="@_roleChange" OnFormValidSubmit="@SubmitRole">
+                                         Model="@_roleChange" OnFormValidSubmit="@(ctx => SubmitRole(currentUser, ctx))">
 
                                 <InputSelect @bind-Value="@_roleChange.Role">
                                     @foreach (var role in _roles)
@@ -42,7 +42,7 @@
 
                             <FormDialog @ref="@_passwordDialog" ButtonText="Change password" DialogTitle="Change password"
                                          class="btn btn-outline-secondary" OnOpen="@(() => OnPasswordDialogOpen(currentUser))"
-                                         Model="@_passwordChange" OnFormValidSubmit="@SubmitPassword">
+                                         Model="@_passwordChange" OnFormValidSubmit="@(ctx => SubmitPassword(currentUser, ctx))">
 
                                 <InputPassword @bind-Value="@_passwordChange.Password"/>
                                 <ValidationMessage For="@(() => _passwordChange.Password)"/>
@@ -110,23 +110,31 @@ else
         }
     }
 
-    private async Task SubmitRole(EditContext context)
+    private async Task SubmitRole(UserInfo user, EditContext context)
     {
         await _roleDialog.Hide();
+
+        var roleModel = (RoleChange) context.Model;
+        await HttpClient.PostJsonAsync("api/accounts/role", roleModel);
     }
 
-    private async Task SubmitPassword(EditContext context)
+    private async Task SubmitPassword(UserInfo user, EditContext context)
     {
         await _passwordDialog.Hide();
+
+        var passwordModel = (PasswordChange) context.Model;
+        await HttpClient.PostJsonAsync("api/accounts/password", passwordModel); 
     }
 
     private void OnRoleDialogOpen(UserInfo currentUser)
     {
-        _roleChange.Role = currentUser.Role;
+        _roleChange.UserId = currentUser.Id;
+        _roleChange.Role = currentUser.Roles.FirstOrDefault();
     }
 
     private void OnPasswordDialogOpen(UserInfo currentUser)
     {
+        _passwordChange.UserId = currentUser.Id;
         _passwordChange.Password = "";
     }
 }

@@ -42,37 +42,43 @@ namespace DbTableEditor.Api.Controllers.Auth
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                await SetRole(user.UserName, model.Role);
+                var role = new RoleChange
+                {
+                    UserId = user.Id,
+                    Role = model.Role
+                };
+                await SetRole(role);
+
                 return BuildToken(model);
             }
 
             return BadRequest("Username or password is invalid");
         }
 
-        [HttpPost("{userId}/role/{roleName}")]
-        public async Task<ActionResult> SetRole(string userId, string roleName)
+        [HttpPost("role")]
+        public async Task<ActionResult> SetRole(RoleChange change)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(change.UserId);
             if (user == null)
             {
                 return NotFound();
             }
 
-            await _userManager.AddToRoleAsync(user, roleName);
+            await _userManager.AddToRoleAsync(user, change.Role);
             return Ok();
         }
 
-        [HttpPost("{userId}/password/{password}")]
-        public async Task<ActionResult> SetPassword(string userId, string password)
+        [HttpPost("password")]
+        public async Task<ActionResult> SetPassword(PasswordChange change)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(change.UserId);
             if (user == null)
             {
                 return NotFound();
             }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var result = await _userManager.ResetPasswordAsync(user, token, password);
+            var result = await _userManager.ResetPasswordAsync(user, token, change.Password);
 
             if (!result.Succeeded)
             {
@@ -99,9 +105,16 @@ namespace DbTableEditor.Api.Controllers.Auth
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserInfo>>> GetUsers()
         {
-            return await _userManager.Users
-                .Select(user => CreateUserFromIdentity(user))
+            var users = await _userManager.Users
                 .ToListAsync();
+
+            var userInfo = new List<UserInfo>();
+            foreach (var identityUser in users)
+            {
+                userInfo.Add(await CreateUserFromIdentity(identityUser));
+            }
+
+            return Ok(userInfo);
         }
 
         [HttpDelete("{id}")]
@@ -114,16 +127,18 @@ namespace DbTableEditor.Api.Controllers.Auth
             }
 
             await _userManager.DeleteAsync(user);
-            return CreateUserFromIdentity(user);
+            return await CreateUserFromIdentity(user);
         }
 
-        private static UserInfo CreateUserFromIdentity(IdentityUser user)
+        private async Task<UserInfo> CreateUserFromIdentity(IdentityUser user)
         {
+            var roles = await _userManager.GetRolesAsync(user);
+
             return new UserInfo
             {
                 Id = user.Id,
                 Username = user.UserName,
-                Role = "Test"
+                Roles = roles.ToList()
             };
         }
 
