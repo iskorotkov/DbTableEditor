@@ -1,4 +1,4 @@
-﻿<button @onclick=Show @attributes=@AdditionalAttributes type=button>
+﻿<button @onclick="@Show" @attributes="@AdditionalAttributes" type="button">
     @ButtonText
 </button>
 
@@ -17,8 +17,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button @onclick="Cancel" class="btn btn-secondary" data-dismiss="modal" type="reset">Close</button>
-                    <button @onclick="Submit" class="btn btn-primary" type="submit">Save changes</button>
+                    <button @onclick="@Cancel" class="btn btn-secondary" data-dismiss="modal" type="reset">Close</button>
+                    <button @onclick="@Submit" class="btn btn-primary" type="submit">Save changes</button>
                 </div>
 
             </div>

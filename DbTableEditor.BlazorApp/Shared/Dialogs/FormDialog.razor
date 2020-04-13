@@ -1,6 +1,6 @@
 ﻿@inherits PopupDialog
 
-<button @onclick=Show @attributes=@AdditionalAttributes type=button>
+<button @onclick="@Show" @attributes="@AdditionalAttributes" type="button">
     @ButtonText
 </button>
 
@@ -9,8 +9,7 @@
     <div class="fade modal show" role="dialog" style="display: block;" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <EditForm class="modal-content" EditContext="@EditContext"
-                      Model="@Model" OnSubmit="@OnFormSubmit" OnValidSubmit="@OnFormValidSubmit"
-                      @OnInvalidSubmit="@OnFormInvalidSubmit">
+                      Model="@Model" OnValidSubmit="@FormValidSubmit">
                 
                 <DataAnnotationsValidator />
 
@@ -23,8 +22,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button @onclick="Cancel" class="btn btn-secondary" data-dismiss="modal" type="reset">Close</button>
-                    <button @onclick="Submit" class="btn btn-primary" type="submit">Save changes</button>
+                    <button @onclick="@Cancel" class="btn btn-secondary" data-dismiss="modal" type="reset">Close</button>
+                    <button @onclick="@Submit" class="btn btn-primary" type="submit">Save changes</button>
                 </div>
 
             </EditForm>
@@ -41,11 +40,15 @@
     public object Model { get; set; }
 
     [Parameter]
-    public EventCallback<EditContext> OnFormSubmit { get; set; }
-
-    [Parameter]
     public EventCallback<EditContext> OnFormValidSubmit { get; set; }
 
-    [Parameter]
-    public EventCallback<EditContext> OnFormInvalidSubmit { get; set; }
+    private async Task FormValidSubmit(EditContext context)
+    {
+        await Hide();
+
+        if (OnFormValidSubmit.HasDelegate)
+        {
+            await OnFormValidSubmit.InvokeAsync(context);
+        }
+    }
 }
