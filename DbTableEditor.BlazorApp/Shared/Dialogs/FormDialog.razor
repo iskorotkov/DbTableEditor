@@ -6,11 +6,14 @@
 
 @if (IsShown)
 {
-    <div class="fade modal show" role="dialog" style="display: block;" tabindex="-1">
+    <div class="modal show modal-backdrop" style="display: block"></div>
+
+    <div class="modal show" role="dialog" style="display: block;" tabindex="-1">
+
         <div class="modal-dialog modal-dialog-centered" role="document">
             <EditForm class="modal-content" EditContext="@EditContext"
                       Model="@Model" OnValidSubmit="@FormValidSubmit">
-                
+
                 <DataAnnotationsValidator />
 
                 <div class="modal-header">
