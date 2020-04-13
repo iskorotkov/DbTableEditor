@@ -11,57 +11,78 @@
 }
 else
 {
-    <table class="table table-bordered table-responsive">
+    <table class="table table-bordered">
         <thead>
-        <tr>
-            @foreach (var column in Columns)
-            {
-                <th @key="@column" class="divTableHead">@column</th>
-            }
-        </tr>
+            <tr>
+                @foreach (var column in Columns)
+                {
+                    <th @key="@column">@column</th>
+                }
+            </tr>
         </thead>
         <tbody>
-        @foreach (var (emp, inAlliance) in Empires)
-        {
-            var empire = emp;
-            var isInAlliance = inAlliance;
-            <TableRow Model="@empire" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                <DataAnnotationsValidator/>
+            @foreach (var (emp, inAlliance) in Empires)
+            {
+                var empire = emp;
+                var isInAlliance = inAlliance;
+                
+                <AuthorizeView Roles="Admin, Editor">
+                    <Authorized>
+                        <TableRow Model="@empire" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                            <DataAnnotationsValidator/>
 
-                <td>
-                    @if (isInAlliance)
-                    {
-                        <span>Empire can't be deleted.</span>
-                    }
-                    else
-                    {
-                        <button class="btn btn-link" @onclick="@(() => Remove(empire))">
-                            Remove
-                        </button>
-                    }
-                </td>
+                            <td>
+                                @if (isInAlliance)
+                                {
+                                    <span>Empire can't be deleted.</span>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="@(() => Remove(empire))">
+                                        Remove
+                                    </button>
+                                }
+                            </td>
 
-                <TextCell @bind-Value="@empire.Name">
-                    @if (DuplicatedName.Contains(empire))
-                    {
-                        <div class="validation-message">Name must be distinct.</div>
-                    }
-                </TextCell>
+                            <TextCell @bind-Value="@empire.Name">
+                                @if (DuplicatedName.Contains(empire))
+                                {
+                                    <div class="validation-message">Name must be distinct.</div>
+                                }
+                            </TextCell>
 
-                <NumberCell @bind-Value="@empire.Power"/>
-                <TextCell @bind-Value="@empire.Ruler"/>
+                            <NumberCell @bind-Value="@empire.Power"/>
+                            <TextCell @bind-Value="@empire.Ruler"/>
 
-                <SelectItemCell @bind-Value="@empire.GovernmentTypeId" Elements="@GovernmentTypes"
-                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
-            </TableRow>
-        }
-        <tr>
-            <td>
-                <button class="btn btn-link" @onclick="@Create">
-                    Create
-                </button>
-            </td>
-        </tr>
+                            <SelectItemCell @bind-Value="@empire.GovernmentTypeId" Elements="@GovernmentTypes"
+                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                        </TableRow>
+                    </Authorized>
+                    
+                    <NotAuthorized>
+                        <tr>
+                            <td></td>
+                            <td>@empire.Name</td>
+                            <td>@empire.Power</td>
+                            <td>@empire.Ruler</td>
+                            <td>@GovernmentTypes.Find(t => t.Id == empire.GovernmentTypeId).Name</td>
+                        </tr>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
+            <AuthorizeView Roles="Admin, Editor">
+                <Authorized>
+                    <tr>
+                        <td>
+                            <button class="btn btn-link" @onclick="@Create">
+                                Create
+                            </button>
+                        </td>
+                    </tr>
+                </Authorized>
+                
+                <NotAuthorized></NotAuthorized>
+            </AuthorizeView>
         </tbody>
     </table>
 }
@@ -133,7 +154,7 @@ else
             return;
         }
 
-        var empire = (Empire)ctx.Model;
+        var empire = (Empire) ctx.Model;
         if (Empires.Exists(s => s.Empire.Id != empire.Id && s.Empire.Name == empire.Name))
         {
             DuplicatedName.Add(empire);

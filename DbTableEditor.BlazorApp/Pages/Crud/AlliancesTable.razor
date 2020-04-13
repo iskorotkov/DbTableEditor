@@ -11,53 +11,73 @@
 }
 else
 {
-    <table class="table table-bordered table-responsive">
+    <table class="table table-bordered">
         <thead>
-        <tr>
-            @foreach (var column in Columns)
-            {
-                <th @key="@column" class="divTableHead">@column</th>
-            }
-        </tr>
+            <tr>
+                @foreach (var column in Columns)
+                {
+                    <th @key="@column">@column</th>
+                }
+            </tr>
         </thead>
         <tbody>
-        @foreach (var (al, emp) in Alliances)
-        {
-            var alliance = al;
-            var hasEmpires = emp;
-            <TableRow Model="@alliance" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                <DataAnnotationsValidator/>
+            @foreach (var (al, emp) in Alliances)
+            {
+                var alliance = al;
+                var hasEmpires = emp;
 
-                <td>
-                    @if (hasEmpires)
-                    {
-                        <span>Alliance can't be deleted.</span>
-                    }
-                    else
-                    {
-                        <button class="btn btn-link" @onclick="@(() => Remove(alliance))">
-                            Remove
-                        </button>
-                    }
-                </td>
+                <AuthorizeView Roles="Admin, Editor">
+                    <Authorized>
+                        <TableRow Model="@alliance" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                            <DataAnnotationsValidator/>
 
-                <TextCell @bind-Value="@alliance.Name">
-                    @if (DuplicatedName.Contains(alliance))
-                    {
-                        <div class="validation-message">Name must be distinct.</div>
-                    }
-                </TextCell>
+                            <td>
+                                @if (hasEmpires)
+                                {
+                                    <span>Alliance can't be deleted.</span>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="@(() => Remove(alliance))">
+                                        Remove
+                                    </button>
+                                }
+                            </td>
 
-                <NumberCell @bind-Value="@alliance.Power"/>
-            </TableRow>
-        }
-        <tr>
-            <td>
-                <button class="btn btn-link" @onclick="@Create">
-                    Create
-                </button>
-            </td>
-        </tr>
+                            <TextCell @bind-Value="@alliance.Name">
+                                @if (DuplicatedName.Contains(alliance))
+                                {
+                                    <div class="validation-message">Name must be distinct.</div>
+                                }
+                            </TextCell>
+
+                            <NumberCell @bind-Value="@alliance.Power"/>
+                        </TableRow>
+                    </Authorized>
+
+                    <NotAuthorized>
+                        <tr>
+                            <td></td>
+                            <td>@alliance.Name</td>
+                            <td>@alliance.Power</td>
+                        </tr>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
+
+            <AuthorizeView Roles="Admin, Editor">
+                <Authorized>
+                    <tr>
+                        <td>
+                            <button class="btn btn-link" @onclick="@Create">
+                                Create
+                            </button>
+                        </td>
+                    </tr>
+                </Authorized>
+
+                <NotAuthorized></NotAuthorized>
+            </AuthorizeView>
         </tbody>
     </table>
 }
@@ -67,7 +87,7 @@ else
 
     private HashSet<Alliance> DuplicatedName { get; set; } = new HashSet<Alliance>();
 
-    private List<string> Columns { get; set; } = new List<string> {"", "Name", "Power"};
+    private List<string> Columns { get; set; } = new List<string> { "", "Name", "Power" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,7 +135,7 @@ else
             return;
         }
 
-        var alliance = (Alliance)ctx.Model;
+        var alliance = (Alliance) ctx.Model;
         if (Alliances.Exists(s => s.Alliance.Id != alliance.Id && s.Alliance.Name == alliance.Name))
         {
             DuplicatedName.Add(alliance);

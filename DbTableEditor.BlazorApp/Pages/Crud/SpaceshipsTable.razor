@@ -11,58 +11,86 @@
 }
 else
 {
-    <table class="table table-bordered table-responsive">
+    <table class="table table-bordered">
         <thead>
-        <tr>
-            @foreach (var column in Columns)
-            {
-                <th @key="@column" class="divTableHead">@column</th>
-            }
-        </tr>
+            <tr>
+                @foreach (var column in Columns)
+                {
+                    <th @key="@column">@column</th>
+                }
+            </tr>
         </thead>
         <tbody>
-        @foreach (var ship in Spaceships)
-        {
-            var s = ship;
-            <TableRow Model="@s" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                <DataAnnotationsValidator/>
+            @foreach (var ship in Spaceships)
+            {
+                var s = ship;
+                
+                <AuthorizeView Roles="Admin, Editor">
+                    <Authorized>
+                        <TableRow Model="@s" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                            <DataAnnotationsValidator/>
 
-                <td>
-                    <button class="btn btn-link" @onclick="@(() => Remove(s))">
-                        Remove
-                    </button>
-                </td>
+                            <td>
+                                <button class="btn btn-link" @onclick="@(() => Remove(s))">
+                                    Remove
+                                </button>
+                            </td>
 
-                <TextCell @bind-Value="@s.Name">
-                    @if (DuplicatedName.Contains(s))
-                    {
-                        <div class="validation-message">Name must be distinct.</div>
-                    }
-                </TextCell>
+                            <TextCell @bind-Value="@s.Name">
+                                @if (DuplicatedName.Contains(s))
+                                {
+                                    <div class="validation-message">Name must be distinct.</div>
+                                }
+                            </TextCell>
 
-                <NumberCell @bind-Value="@s.Capacity"/>
-                <NumberCell @bind-Value="@s.Energy"/>
-                <NumberCell @bind-Value="@s.Firepower"/>
-                <NumberCell @bind-Value="@s.Fuel"/>
-                <NumberCell @bind-Value="@s.Hull"/>
-                <NumberCell @bind-Value="@s.Speed"/>
-                <NumberCell @bind-Value="@s.Staff"/>
-                <NumberCell @bind-Value="@s.Weight"/>
+                            <NumberCell @bind-Value="@s.Capacity"/>
+                            <NumberCell @bind-Value="@s.Energy"/>
+                            <NumberCell @bind-Value="@s.Firepower"/>
+                            <NumberCell @bind-Value="@s.Fuel"/>
+                            <NumberCell @bind-Value="@s.Hull"/>
+                            <NumberCell @bind-Value="@s.Speed"/>
+                            <NumberCell @bind-Value="@s.Staff"/>
+                            <NumberCell @bind-Value="@s.Weight"/>
 
-                <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
-                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                            <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
+                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
 
-                <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
-                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
-            </TableRow>
-        }
-        <tr>
-            <td>
-                <button class="btn btn-link" @onclick="@Create">
-                    Create
-                </button>
-            </td>
-        </tr>
+                            <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
+                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                        </TableRow>
+                    </Authorized>
+                    
+                    <NotAuthorized>
+                        <tr>
+                            <td>@s.Name</td>
+                            <td>@s.Capacity</td>
+                            <td>@s.Energy</td>
+                            <td>@s.Firepower</td>
+                            <td>@s.Fuel</td>
+                            <td>@s.Hull</td>
+                            <td>@s.Speed</td>
+                            <td>@s.Staff</td>
+                            <td>@s.Weight</td>
+                            <td>@Fleets.Find(f => f.Id == s.FleetId).Name</td>
+                            <td>@Shipyards.Find(shipyard => shipyard.Id == s.ShipyardId).Name</td>
+                        </tr>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
+            
+            <AuthorizeView Roles="Admin, Editor">
+                <Authorized>
+                    <tr>
+                        <td>
+                            <button class="btn btn-link" @onclick="@Create">
+                                Create
+                            </button>
+                        </td>
+                    </tr>
+                </Authorized>
+                
+                <NotAuthorized></NotAuthorized>
+            </AuthorizeView>
         </tbody>
     </table>
 }
@@ -144,7 +172,7 @@ else
             return;
         }
 
-        var ship = (Spaceship)ctx.Model;
+        var ship = (Spaceship) ctx.Model;
         if (Spaceships.Exists(s => s.Id != ship.Id && s.Name == ship.Name))
         {
             DuplicatedName.Add(ship);
