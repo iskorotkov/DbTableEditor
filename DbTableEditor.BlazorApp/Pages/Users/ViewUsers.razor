@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @inject HttpClient HttpClient
 @inject NavigationManager NavManager
+@inject ILoginService LoginService
 
 @if (_usersLoaded)
 {
@@ -85,8 +86,8 @@ else
     private readonly RoleChange _roleChange = new RoleChange();
     private readonly List<string> _roles = new List<string> { "Editor", "Admin" };
 
-    private PopupDialog _passwordDialog;
-    private PopupDialog _roleDialog;
+    private FormDialog _passwordDialog;
+    private FormDialog _roleDialog;
 
     protected override async Task OnInitializedAsync()
     {
@@ -129,6 +130,8 @@ else
 
         user.Roles.Remove(oldRole.Role);
         user.Roles.Add(newRole.Role);
+
+        await PostChangeActions(user);
     }
 
     private async Task SubmitPassword(UserInfo user, EditContext context)
@@ -137,6 +140,17 @@ else
 
         var passwordModel = (PasswordChange) context.Model;
         await HttpClient.PostJsonAsync("api/passwords", passwordModel);
+
+        await PostChangeActions(user);
+    }
+
+    private async Task PostChangeActions(UserInfo user)
+    {
+        var state = await AuthState;
+        if (state.User.Identity.Name == user.Username)
+        {
+            NavManager.NavigateTo("logout", true);
+        }
     }
 
     private void OnRoleDialogOpen(UserInfo currentUser)
