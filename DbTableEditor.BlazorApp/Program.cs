@@ -18,7 +18,7 @@ namespace DbTableEditor.BlazorApp
             builder.Services.AddOptions();
             builder.Services.AddAuthorizationCore();
 
-            builder.Services.AddScoped<SaveOnCloseService>();
+            builder.Services.AddScoped<ISaveOnCloseService, NoSaveOnClose>();
 
             builder.Services.AddScoped<JwtAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
