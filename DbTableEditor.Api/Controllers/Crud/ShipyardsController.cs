@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Editor", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ShipyardsController : ControllerBase
     {
         private readonly SpaceshipsContext _context;
@@ -21,6 +24,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 
         // GET: api/Shipyards
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Shipyard>>> GetShipyards()
         {
             return await _context.Shipyards.ToListAsync();
@@ -28,6 +32,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 
         // GET: api/Shipyards/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Shipyard>> GetShipyard(int id)
         {
             var shipyard = await _context.Shipyards.FindAsync(id);

@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using DbTableEditor.Auth.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +9,7 @@ namespace DbTableEditor.Api.Controllers.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PasswordsController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;

@@ -12,6 +12,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Editor", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class SpaceshipsController : ControllerBase
     {
         private readonly SpaceshipsContext _context;
@@ -23,7 +24,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 
         // GET: api/Spaceships
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Spaceship>>> GetSpaceships()
         {
             return await _context.Spaceships.ToListAsync();
@@ -31,6 +32,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 
         // GET: api/Spaceships/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Spaceship>> GetSpaceship(int id)
         {
             var spaceship = await _context.Spaceships.FindAsync(id);

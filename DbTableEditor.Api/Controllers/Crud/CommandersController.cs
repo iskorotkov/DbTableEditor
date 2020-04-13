@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Editor", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CommandersController : ControllerBase
     {
         private readonly SpaceshipsContext _context;
@@ -21,6 +24,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 
         // GET: api/Commanders
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Commander>>> GetCommanders()
         {
             return await _context.Commanders.ToListAsync();
@@ -28,6 +32,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 
         // GET: api/Commanders/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Commander>> GetCommander(int id)
         {
             var commander = await _context.Commanders.FindAsync(id);

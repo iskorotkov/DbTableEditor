@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
 using DbTableEditor.Data.Wrappers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +13,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Editor", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class EmpiresController : ControllerBase
     {
         private readonly SpaceshipsContext _context;
@@ -22,12 +25,14 @@ namespace DbTableEditor.Api.Controllers.Crud
 
         // GET: api/Empires
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Empire>>> GetEmpires()
         {
             return await _context.Empires.ToListAsync();
         }
 
         [HttpGet("inalliance")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<EmpireInAlliance>>> GetEmpiresInAlliance()
         {
             return await _context.Empires
@@ -37,6 +42,7 @@ namespace DbTableEditor.Api.Controllers.Crud
 
         // GET: api/Empires/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Empire>> GetEmpire(int id)
         {
             var empire = await _context.Empires.FindAsync(id);

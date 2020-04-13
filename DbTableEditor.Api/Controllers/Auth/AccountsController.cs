@@ -6,6 +6,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using DbTableEditor.Auth.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +17,7 @@ namespace DbTableEditor.Api.Controllers.Auth
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AccountsController : ControllerBase
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -30,6 +33,7 @@ namespace DbTableEditor.Api.Controllers.Auth
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserCredentials model)
         {
             var user = new IdentityUser
@@ -54,6 +58,7 @@ namespace DbTableEditor.Api.Controllers.Auth
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserCredentials userInfo)
         {
             var result = await _signInManager.PasswordSignInAsync(userInfo.Email,
