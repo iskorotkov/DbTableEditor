@@ -1,0 +1,104 @@
+﻿<button @onclick="@Show" @attributes="@AdditionalAttributes" type="button">
+    @ButtonText
+</button>
+
+@if (IsShown)
+{
+    <div class="modal show modal-backdrop" style="display: block"></div>
+
+    <div class="modal show" role="dialog" style="display: block;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class=modal-title>@DialogTitle</h5>
+                </div>
+
+                <div class=modal-body>
+                    @ChildContent
+                </div>
+
+                <div class="modal-footer">
+                    <button @onclick="@Cancel" class="btn btn-secondary" data-dismiss="modal" type="reset">Close</button>
+                    <button @onclick="@Submit" class="btn btn-primary" type="submit">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Button";
+
+    [Parameter]
+    public string DialogTitle { get; set; } = "Dialog";
+
+    [Parameter]
+    public EventCallback OnOpen { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback OnSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public bool CloseOnCancel { get; set; } = true;
+
+    protected bool IsShown { get; private set; }
+
+    public async Task Show()
+    {
+        IsShown = true;
+        StateHasChanged();
+
+        if (OnOpen.HasDelegate)
+        {
+            await OnOpen.InvokeAsync(null);
+        }
+    }
+
+    public async Task Hide()
+    {
+        IsShown = false;
+        StateHasChanged();
+
+        if (OnClose.HasDelegate)
+        {
+            await OnClose.InvokeAsync(null);
+        }
+    }
+
+    protected async Task Submit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(null);
+        }
+    }
+
+    protected async Task Cancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync(null);
+        }
+
+        if (CloseOnCancel)
+        {
+            await Hide();
+        }
+    }
+}

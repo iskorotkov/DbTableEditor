@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
 using DbTableEditor.Data.Wrappers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace DbTableEditor.Api.Controllers
+namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Editor", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AlliancesController : ControllerBase
     {
         private readonly SpaceshipsContext _context;
@@ -24,12 +25,14 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/Alliances
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Alliance>>> GetAlliances()
         {
             return await _context.Alliances.ToListAsync();
         }
 
         [HttpGet("status")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<AllianceStatus>>> GetAlliancesStatus()
         {
             return await _context.Alliances
@@ -39,6 +42,7 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/Alliances/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Alliance>> GetAlliance(int id)
         {
             var alliance = await _context.Alliances.FindAsync(id);

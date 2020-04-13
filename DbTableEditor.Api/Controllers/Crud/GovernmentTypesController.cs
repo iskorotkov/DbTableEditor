@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace DbTableEditor.Api.Controllers
+namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Editor", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GovernmentTypesController : ControllerBase
     {
         private readonly SpaceshipsContext _context;
@@ -23,6 +24,7 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/GovernmentTypes
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<GovernmentType>>> GetGovernmentTypes()
         {
             return await _context.GovernmentTypes.ToListAsync();
@@ -30,6 +32,7 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/GovernmentTypes/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<GovernmentType>> GetGovernmentType(int id)
         {
             var governmentType = await _context.GovernmentTypes.FindAsync(id);

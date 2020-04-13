@@ -1,15 +1,18 @@
-﻿using DbTableEditor.Data.Context;
-using DbTableEditor.Data.Model;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DbTableEditor.Data.Context;
+using DbTableEditor.Data.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace DbTableEditor.Api.Controllers
+namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Editor", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class SpaceshipsController : ControllerBase
     {
         private readonly SpaceshipsContext _context;
@@ -21,6 +24,7 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/Spaceships
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Spaceship>>> GetSpaceships()
         {
             return await _context.Spaceships.ToListAsync();
@@ -28,6 +32,7 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/Spaceships/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Spaceship>> GetSpaceship(int id)
         {
             var spaceship = await _context.Spaceships.FindAsync(id);

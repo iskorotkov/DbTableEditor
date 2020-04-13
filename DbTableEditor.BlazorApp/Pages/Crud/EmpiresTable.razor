@@ -1,0 +1,186 @@
+﻿@page "/empires"
+@using DbTableEditor.BlazorApp.Services.Saving
+@inject HttpClient Http
+@inject ISaveOnCloseService SaveOnClose
+
+<h3>Empires</h3>
+
+@if (Empires == null)
+{
+    <span>Loading data...</span>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                @foreach (var column in Columns)
+                {
+                    <th @key="@column">@column</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var (emp, inAlliance) in Empires)
+            {
+                var empire = emp;
+                var isInAlliance = inAlliance;
+                
+                <AuthorizeView Roles="Admin, Editor">
+                    <Authorized>
+                        <TableRow Model="@empire" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                            <DataAnnotationsValidator/>
+
+                            <td>
+                                @if (isInAlliance)
+                                {
+                                    <span>Empire can't be deleted.</span>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="@(() => Remove(empire))">
+                                        Remove
+                                    </button>
+                                }
+                            </td>
+
+                            <TextCell @bind-Value="@empire.Name">
+                                @if (DuplicatedName.Contains(empire))
+                                {
+                                    <div class="validation-message">Name must be distinct.</div>
+                                }
+                            </TextCell>
+
+                            <NumberCell @bind-Value="@empire.Power"/>
+                            <TextCell @bind-Value="@empire.Ruler"/>
+
+                            <SelectItemCell @bind-Value="@empire.GovernmentTypeId" Elements="@GovernmentTypes"
+                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                        </TableRow>
+                    </Authorized>
+                    
+                    <NotAuthorized>
+                        <tr>
+                            <td></td>
+                            <td>@empire.Name</td>
+                            <td>@empire.Power</td>
+                            <td>@empire.Ruler</td>
+                            <td>@GovernmentTypes.Find(t => t.Id == empire.GovernmentTypeId).Name</td>
+                        </tr>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
+            <AuthorizeView Roles="Admin, Editor">
+                <Authorized>
+                    <tr>
+                        <td>
+                            <button class="btn btn-link" @onclick="@Create">
+                                Create
+                            </button>
+                        </td>
+                    </tr>
+                </Authorized>
+                
+                <NotAuthorized></NotAuthorized>
+            </AuthorizeView>
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<EmpireInAlliance> Empires { get; set; }
+    private List<GovernmentType> GovernmentTypes { get; set; }
+
+    private HashSet<Empire> DuplicatedName { get; set; } = new HashSet<Empire>();
+
+    private List<string> Columns { get; set; } = new List<string>
+    {
+        "", "Name", "Power",
+        "Ruler", "Government Type"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InitGovernmentTypes();
+        await InitEmpires();
+
+        SaveOnClose.PageClosing += async (ctx) => await SubmitChanges(ctx);
+        await SaveOnClose.EnablePreventClosing();
+    }
+
+    private async Task InitGovernmentTypes()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<GovernmentType>>("api/governmenttypes")
+            .ConfigureAwait(false);
+        GovernmentTypes = result.OrderBy(t => t.Id)
+            .ToList();
+    }
+
+    private async Task InitEmpires()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<EmpireInAlliance>>("api/empires/inalliance")
+            .ConfigureAwait(false);
+        Empires = result
+            .OrderBy(e => e.Empire.Id)
+            .ToList();
+    }
+
+    private void Create()
+    {
+        var empire = new Empire();
+        Empires.Add(new EmpireInAlliance(empire, false));
+        StateHasChanged();
+    }
+
+    private async Task Remove(Empire empire)
+    {
+        Empires.RemoveAll(e => e.Empire == empire);
+        if (DuplicatedName.Contains(empire))
+        {
+            DuplicatedName.Remove(empire);
+        }
+
+        if (empire.Id != 0)
+        {
+            await Http.DeleteAsync($"api/empires/{empire.Id}")
+                .ConfigureAwait(false);
+        }
+    }
+
+    private async Task SubmitChanges(EditContext ctx)
+    {
+        if (!ctx.IsModified())
+        {
+            return;
+        }
+
+        var empire = (Empire) ctx.Model;
+        if (Empires.Exists(s => s.Empire.Id != empire.Id && s.Empire.Name == empire.Name))
+        {
+            DuplicatedName.Add(empire);
+            return;
+        }
+
+        if (DuplicatedName.Contains(empire))
+        {
+            DuplicatedName.Remove(empire);
+        }
+
+        if (empire.Id == 0)
+        {
+            var created = await Http.PostJsonAsync<Empire>("api/empires", empire);
+            empire.Id = created.Id;
+        }
+        else
+        {
+            await Http.PutJsonAsync($"api/empires/{empire.Id}", empire);
+        }
+        ctx.MarkAsUnmodified();
+    }
+
+    private void UpdateSelected(EditContext ctx)
+    {
+        SaveOnClose.EditContext = ctx;
+    }
+
+}

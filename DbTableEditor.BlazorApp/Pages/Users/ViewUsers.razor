@@ -1,0 +1,180 @@
+﻿@page "/Users"
+@attribute [Authorize(Roles = "Admin")]
+@inject HttpClient HttpClient
+@inject NavigationManager NavManager
+@inject ILoginService LoginService
+
+@if (_usersLoaded)
+{
+    @if (Users != null)
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var user in Users)
+                {
+                    var currentUser = user;
+                    <tr>
+                        <th>@user.Username</th>
+
+                        <th>@user.Roles.FirstOrDefault()</th>
+
+                        <th>
+                            <FormDialog @ref="@_roleDialog" ButtonText="Edit roles" DialogTitle="Edit roles"
+                                         class="btn btn-outline-secondary" OnOpen="@(() => OnRoleDialogOpen(currentUser))"
+                                         Model="@_roleChange" OnFormValidSubmit="@(ctx => SubmitRole(currentUser, ctx))">
+
+                                <InputSelect @bind-Value="@_roleChange.Role">
+                                    @foreach (var role in _roles)
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => _roleChange.Role)"/>
+
+                            </FormDialog>
+
+                            <FormDialog @ref="@_passwordDialog" ButtonText="Change password" DialogTitle="Change password"
+                                         class="btn btn-outline-secondary" OnOpen="@(() => OnPasswordDialogOpen(currentUser))"
+                                         Model="@_passwordChange" OnFormValidSubmit="@(ctx => SubmitPassword(currentUser, ctx))">
+
+                                <InputPassword @bind-Value="@_passwordChange.Password"/>
+                                <ValidationMessage For="@(() => _passwordChange.Password)"/>
+
+                            </FormDialog>
+
+                            <button @onclick="@(() => DeleteUser(currentUser))"
+                                     class="btn btn-warning">
+                                Delete
+                            </button>
+                        </th>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button @onclick="@AddUser" class="btn btn-primary">
+            Add user
+        </button>
+    }
+    else
+    {
+        <span>No users were created.</span>
+    }
+}
+else
+{
+    <span>Loading...</span>
+}
+
+@code
+{
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    private List<UserInfo> Users { get; set; }
+    private bool _usersLoaded;
+
+    private readonly PasswordChange _passwordChange = new PasswordChange();
+    private readonly RoleChange _roleChange = new RoleChange();
+    private readonly List<string> _roles = new List<string> { "Editor", "Admin" };
+
+    private FormDialog _passwordDialog;
+    private FormDialog _roleDialog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await HttpClient.GetJsonAsync<IEnumerable<UserInfo>>("api/accounts");
+        Users = result.ToList();
+        _usersLoaded = true;
+    }
+
+    private async Task DeleteUser(UserInfo user)
+    {
+        try
+        {
+            Users.Remove(user);
+            await HttpClient.DeleteAsync($"api/accounts/{user.Id}");
+
+            var state = await AuthState;
+            if (state.User.Identity.Name == user.Username)
+            {
+                NavManager.NavigateTo("logout");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    private async Task SubmitRole(UserInfo user, EditContext context)
+    {
+        await _roleDialog.Hide();
+
+        var newRole = (RoleChange) context.Model;
+        var oldRole = new RoleChange
+        {
+            UserId = newRole.UserId,
+            Role = user.Roles.First()
+        };
+
+        if (newRole.Role == oldRole.Role)
+        {
+            return;
+        }
+
+        await HttpClient.PostJsonAsync("api/roles/remove", oldRole);
+        await HttpClient.PostJsonAsync("api/roles/add", newRole);
+
+        user.Roles.Remove(oldRole.Role);
+        user.Roles.Add(newRole.Role);
+
+        await PostChangeActions(user);
+    }
+
+    private async Task SubmitPassword(UserInfo user, EditContext context)
+    {
+        await _passwordDialog.Hide();
+
+        var passwordModel = (PasswordChange) context.Model;
+        await HttpClient.PostJsonAsync("api/passwords", passwordModel);
+
+        await PostChangeActions(user);
+    }
+
+    private async Task PostChangeActions(UserInfo user)
+    {
+        var state = await AuthState;
+        if (state.User.Identity.Name == user.Username)
+        {
+            NavManager.NavigateTo("logout", true);
+        }
+    }
+
+    private void OnRoleDialogOpen(UserInfo currentUser)
+    {
+        _roleChange.UserId = currentUser.Id;
+        _roleChange.Role = currentUser.Roles.FirstOrDefault();
+    }
+
+    private void OnPasswordDialogOpen(UserInfo currentUser)
+    {
+        _passwordChange.UserId = currentUser.Id;
+        _passwordChange.Password = "";
+    }
+
+    private void AddUser()
+    {
+        var address = NavManager.Uri;
+        address = NavManager.ToBaseRelativePath(address);
+        NavManager.NavigateTo($"register/{address}");
+    }
+}

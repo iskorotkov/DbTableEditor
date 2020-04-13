@@ -1,0 +1,204 @@
+﻿@page "/spaceships"
+@using DbTableEditor.BlazorApp.Services.Saving
+@inject HttpClient Http
+@inject ISaveOnCloseService SaveOnClose
+
+<h3>Spaceships</h3>
+
+@if (Spaceships == null)
+{
+    <span>Loading data...</span>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                @foreach (var column in Columns)
+                {
+                    <th @key="@column">@column</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ship in Spaceships)
+            {
+                var s = ship;
+                
+                <AuthorizeView Roles="Admin, Editor">
+                    <Authorized>
+                        <TableRow Model="@s" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                            <DataAnnotationsValidator/>
+
+                            <td>
+                                <button class="btn btn-link" @onclick="@(() => Remove(s))">
+                                    Remove
+                                </button>
+                            </td>
+
+                            <TextCell @bind-Value="@s.Name">
+                                @if (DuplicatedName.Contains(s))
+                                {
+                                    <div class="validation-message">Name must be distinct.</div>
+                                }
+                            </TextCell>
+
+                            <NumberCell @bind-Value="@s.Capacity"/>
+                            <NumberCell @bind-Value="@s.Energy"/>
+                            <NumberCell @bind-Value="@s.Firepower"/>
+                            <NumberCell @bind-Value="@s.Fuel"/>
+                            <NumberCell @bind-Value="@s.Hull"/>
+                            <NumberCell @bind-Value="@s.Speed"/>
+                            <NumberCell @bind-Value="@s.Staff"/>
+                            <NumberCell @bind-Value="@s.Weight"/>
+
+                            <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
+                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+
+                            <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
+                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                        </TableRow>
+                    </Authorized>
+                    
+                    <NotAuthorized>
+                        <tr>
+                            <td>@s.Name</td>
+                            <td>@s.Capacity</td>
+                            <td>@s.Energy</td>
+                            <td>@s.Firepower</td>
+                            <td>@s.Fuel</td>
+                            <td>@s.Hull</td>
+                            <td>@s.Speed</td>
+                            <td>@s.Staff</td>
+                            <td>@s.Weight</td>
+                            <td>@Fleets.Find(f => f.Id == s.FleetId).Name</td>
+                            <td>@Shipyards.Find(shipyard => shipyard.Id == s.ShipyardId).Name</td>
+                        </tr>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
+            
+            <AuthorizeView Roles="Admin, Editor">
+                <Authorized>
+                    <tr>
+                        <td>
+                            <button class="btn btn-link" @onclick="@Create">
+                                Create
+                            </button>
+                        </td>
+                    </tr>
+                </Authorized>
+                
+                <NotAuthorized></NotAuthorized>
+            </AuthorizeView>
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Spaceship> Spaceships { get; set; }
+    private List<Fleet> Fleets { get; set; }
+    private List<Shipyard> Shipyards { get; set; }
+
+    private HashSet<Spaceship> DuplicatedName { get; set; } = new HashSet<Spaceship>();
+
+    private List<string> Columns { get; set; } = new List<string>
+    {
+        "", "Name", "Capacity",
+        "Energy", "Firepower", "Fuel", "Hull", "Speed", "Staff", "Weight", "Fleet", "Shipyard"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InitFleets();
+        await InitShipyards();
+        await InitSpaceships();
+
+        SaveOnClose.PageClosing += async (ctx) => await SubmitChanges(ctx);
+        await SaveOnClose.EnablePreventClosing();
+    }
+
+    private async Task InitFleets()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Fleet>>("api/fleets")
+            .ConfigureAwait(false);
+        Fleets = result.OrderBy(f => f.Id)
+            .ToList();
+    }
+
+    private async Task InitShipyards()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Shipyard>>("api/shipyards")
+            .ConfigureAwait(false);
+        Shipyards = result.OrderBy(s => s.Id)
+            .ToList();
+    }
+
+    private async Task InitSpaceships()
+    {
+        var result = await Http.GetJsonAsync<IEnumerable<Spaceship>>("api/Spaceships")
+            .ConfigureAwait(false);
+        Spaceships = result
+            .OrderBy(s => s.Id)
+            .ToList();
+    }
+
+    private void Create()
+    {
+        var ship = new Spaceship();
+        Spaceships.Add(ship);
+        StateHasChanged();
+    }
+
+    private async Task Remove(Spaceship ship)
+    {
+        Spaceships.Remove(ship);
+        if (DuplicatedName.Contains(ship))
+        {
+            DuplicatedName.Remove(ship);
+        }
+
+        if (ship.Id != 0)
+        {
+            await Http.DeleteAsync($"api/spaceships/{ship.Id}")
+                .ConfigureAwait(false);
+        }
+    }
+
+    private async Task SubmitChanges(EditContext ctx)
+    {
+        if (!ctx.IsModified())
+        {
+            return;
+        }
+
+        var ship = (Spaceship) ctx.Model;
+        if (Spaceships.Exists(s => s.Id != ship.Id && s.Name == ship.Name))
+        {
+            DuplicatedName.Add(ship);
+            return;
+        }
+
+        if (DuplicatedName.Contains(ship))
+        {
+            DuplicatedName.Remove(ship);
+        }
+
+        if (ship.Id == 0)
+        {
+            var created = await Http.PostJsonAsync<Spaceship>("api/spaceships", ship);
+            ship.Id = created.Id;
+        }
+        else
+        {
+            await Http.PutJsonAsync($"api/spaceships/{ship.Id}", ship);
+        }
+        ctx.MarkAsUnmodified();
+    }
+
+    private void UpdateSelected(EditContext ctx)
+    {
+        SaveOnClose.EditContext = ctx;
+    }
+
+}

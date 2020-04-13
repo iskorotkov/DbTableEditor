@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.JSInterop;
 
-namespace DbTableEditor.BlazorApp.Services
+namespace DbTableEditor.BlazorApp.Services.Saving
 {
-    public sealed class SaveOnCloseService : IDisposable
+    public sealed class SaveOnCloseService : IDisposable, ISaveOnCloseService
     {
         public EditContext EditContext { get; set; }
         public event Action<EditContext> PageClosing;

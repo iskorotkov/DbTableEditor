@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using DbTableEditor.Data.Context;
 using DbTableEditor.Data.Model;
 using DbTableEditor.Data.Wrappers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace DbTableEditor.Api.Controllers
+namespace DbTableEditor.Api.Controllers.Crud
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin, Editor", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FleetsController : ControllerBase
     {
         private readonly SpaceshipsContext _context;
@@ -22,6 +24,7 @@ namespace DbTableEditor.Api.Controllers
         }
 
         [HttpGet("operational")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<FleetOperational>>> GetOperationalFleets()
         {
             var fleets = await _context.Fleets
@@ -39,6 +42,7 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/Fleets
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Fleet>>> GetFleets()
         {
             return await _context.Fleets.ToListAsync();
@@ -46,6 +50,7 @@ namespace DbTableEditor.Api.Controllers
 
         // GET: api/Fleets/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Fleet>> GetFleet(int id)
         {
             var fleet = await _context.Fleets.FindAsync(id);

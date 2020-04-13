@@ -1,6 +1,7 @@
 ﻿@page "/fleets"
+@using DbTableEditor.BlazorApp.Services.Saving
 @inject HttpClient Http
-@inject SaveOnCloseService SaveOnClose
+@inject ISaveOnCloseService SaveOnClose
 
 <h3>Fleets</h3>
 
@@ -10,61 +11,82 @@
 }
 else
 {
-    <table class="table table-bordered table-responsive">
+    <table class="table table-bordered">
         <thead>
-        <tr>
-            @foreach (var column in Columns)
-            {
-                <th @key="@column" class="divTableHead">@column</th>
-            }
-        </tr>
+            <tr>
+                @foreach (var column in Columns)
+                {
+                    <th @key="@column">@column</th>
+                }
+            </tr>
         </thead>
         <tbody>
-        @foreach (var (fleet, hasShips) in Fleets)
-        {
-            var f = fleet;
-            <TableRow Model="@f" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                <DataAnnotationsValidator/>
+            @foreach (var (fleet, hasShips) in Fleets)
+            {
+                var f = fleet;
+                
+                <AuthorizeView Roles="Admin, Editor">
+                    <Authorized>
+                        <TableRow Model="@f" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                            <DataAnnotationsValidator/>
 
-                <td>
-                    @if (hasShips)
-                    {
-                        <span>Fleet can't be deleted.</span>
-                    }
-                    else
-                    {
-                        <button class="btn btn-link" @onclick="@(() => Remove(f))">
-                            Remove
-                        </button>
-                    }
-                </td>
+                            <td>
+                                @if (hasShips)
+                                {
+                                    <span>Fleet can't be deleted.</span>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="@(() => Remove(f))">
+                                        Remove
+                                    </button>
+                                }
+                            </td>
 
-                <TextCell @bind-Value="@f.Name">
-                    @if (DuplicatedName.Contains(f))
-                    {
-                        <div class="validation-message">Name must be distinct.</div>
-                    }
-                </TextCell>
+                            <TextCell @bind-Value="@f.Name">
+                                @if (DuplicatedName.Contains(f))
+                                {
+                                    <div class="validation-message">Name must be distinct.</div>
+                                }
+                            </TextCell>
 
-                <SelectItemCell @bind-Value="@f.CommanderId" Elements="@Commanders"
-                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
-                    @if (DuplicatedCommander.Contains(f))
-                    {
-                        <div class="validation-message">Commander must be distinct.</div>
-                    }
-                </SelectItemCell>
+                            <SelectItemCell @bind-Value="@f.CommanderId" Elements="@Commanders"
+                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                                @if (DuplicatedCommander.Contains(f))
+                                {
+                                    <div class="validation-message">Commander must be distinct.</div>
+                                }
+                            </SelectItemCell>
 
-                <SelectItemCell @bind-Value="@f.StatusId" Elements="@Statuses"
-                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
-            </TableRow>
-        }
-        <tr>
-            <td>
-                <button class="btn btn-link" @onclick="@Create">
-                    Create
-                </button>
-            </td>
-        </tr>
+                            <SelectItemCell @bind-Value="@f.StatusId" Elements="@Statuses"
+                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                        </TableRow>
+                    </Authorized>
+                    
+                    <NotAuthorized>
+                        <tr>
+                            <td></td>
+                            <td>@fleet.Name</td>
+                            <td>@Commanders.Find(c => c.Id == fleet.CommanderId).Name</td>
+                            <td>@Statuses.Find(s => s.Id == fleet.StatusId).Name</td>
+                        </tr>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
+            
+            <AuthorizeView Roles="Admin, Editor">
+                <Authorized>
+                    <tr>
+                        <td>
+                            <button class="btn btn-link" @onclick="@Create">
+                                Create
+                            </button>
+                        </td>
+                    </tr>
+                </Authorized>
+                
+                <NotAuthorized></NotAuthorized>
+            </AuthorizeView>
         </tbody>
     </table>
 }
@@ -78,7 +100,7 @@ else
     private HashSet<Fleet> DuplicatedCommander { get; set; } = new HashSet<Fleet>();
 
     private List<string> Columns { get; set; } = new List<string>
-    {"", "Name", "Commander", "Status"};
+    { "", "Name", "Commander", "Status" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -148,7 +170,7 @@ else
             return;
         }
 
-        var fleet = (Fleet)ctx.Model;
+        var fleet = (Fleet) ctx.Model;
         var duplicated = false;
         if (Fleets.Exists(f => f.Fleet.Id != fleet.Id && f.Fleet.Name == fleet.Name))
         {
