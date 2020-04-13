@@ -125,6 +125,12 @@ else
             UserId = newRole.UserId,
             Role = user.Roles.First()
         };
+
+        if (newRole.Role == oldRole.Role)
+        {
+            return;
+        }
+
         await HttpClient.PostJsonAsync("api/roles/remove", oldRole);
         await HttpClient.PostJsonAsync("api/roles/add", newRole);
 
