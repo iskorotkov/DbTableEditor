@@ -182,7 +182,7 @@ else
         var state = await AuthState;
         if (state.User.Identity.Name == user.Username)
         {
-            NavManager.NavigateTo("logout", true);
+            NavManager.NavigateTo("/logout", true);
         }
     }
 
@@ -200,8 +200,6 @@ else
 
     private void AddUser()
     {
-        var address = NavManager.Uri;
-        address = NavManager.ToBaseRelativePath(address);
-        NavManager.NavigateTo($"register/{address}");
+        NavManager.NavigateTo("/register");
     }
 }
