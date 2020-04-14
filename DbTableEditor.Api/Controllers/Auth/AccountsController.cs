@@ -51,7 +51,7 @@ namespace DbTableEditor.Api.Controllers.Auth
                 };
                 await _rolesController.Add(role);
 
-                return BuildToken(model);
+                return await BuildToken(model);
             }
 
             return BadRequest("Username or password is invalid");
@@ -65,7 +65,7 @@ namespace DbTableEditor.Api.Controllers.Auth
                 userInfo.Password, false, false);
             if (result.Succeeded)
             {
-                return BuildToken(userInfo);
+                return await BuildToken(userInfo);
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -112,18 +112,22 @@ namespace DbTableEditor.Api.Controllers.Auth
             };
         }
 
-        private UserToken BuildToken(UserCredentials userInfo)
+        private async Task<UserToken> BuildToken(UserCredentials userInfo)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
                 new Claim(ClaimTypes.Name, userInfo.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, userInfo.Role) 
             };
 
+            var user = await _userManager.FindByNameAsync(userInfo.Email);
+            claims.AddRange(from role in await _userManager.GetRolesAsync(user)
+                select new Claim(ClaimTypes.Role, role));
+
             var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey ?? throw new ArgumentException("JWT key wasn't provided by environment.")));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expiration = DateTime.UtcNow.AddHours(1);
 
