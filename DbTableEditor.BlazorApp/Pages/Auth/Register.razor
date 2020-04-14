@@ -41,12 +41,19 @@
     <button type="submit" class="btn btn-primary">Register</button>
 </EditForm>
 
+@if (_errorMessage != null)
+{
+    <div class="alert-warning p-2 m-2">@_errorMessage</div>
+}
+
 @code {
     private readonly UserCredentials _userInfo = new UserCredentials();
     private readonly List<string> _roles = new List<string> { "Editor", "Admin" };
 
     [Parameter]
     public string ReturnUrl { get; set; }
+
+    private string _errorMessage;
 
     public Register()
     {
@@ -55,22 +62,16 @@
 
     private async Task CreateUser()
     {
-        if (string.IsNullOrWhiteSpace(_userInfo.Email))
+        UserToken result;
+        try
         {
-            throw new ArgumentException("User data is invalid", nameof(_userInfo.Email));
+            result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/register", _userInfo);
         }
-
-        if (string.IsNullOrWhiteSpace(_userInfo.Password))
+        catch (HttpRequestException e)
         {
-            throw new ArgumentException("User data is invalid", nameof(_userInfo.Password));
+            _errorMessage = "Registration failed. Username or password is invalid.";
+            return;
         }
-
-        if (string.IsNullOrWhiteSpace(_userInfo.Role))
-        {
-            throw new ArgumentException("User data is invalid", nameof(_userInfo.Role));
-        }
-
-        var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/register", _userInfo);
 
         if (string.IsNullOrWhiteSpace(ReturnUrl))
         {
@@ -81,5 +82,7 @@
         {
             NavManager.NavigateTo(ReturnUrl);
         }
+
+        _errorMessage = null;
     }
 }

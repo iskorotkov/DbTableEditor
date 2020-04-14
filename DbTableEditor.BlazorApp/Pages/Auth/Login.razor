@@ -27,13 +27,28 @@
     <button type="submit" class="btn btn-primary">Log in</button>
 </EditForm>
 
+@if (_errorMessage != null)
+{
+    <div class="alert-warning p-2 m-2">@_errorMessage</div>
+}
+
 @code {
-    private UserCredentials _userInfo = new UserCredentials();
+    private readonly UserCredentials _userInfo = new UserCredentials();
+
+    private string _errorMessage;
 
     private async Task LoginUser()
     {
-        var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/login", _userInfo);
-        await LoginService.Login(result.Token);
-        NavManager.NavigateTo("/");
+        try
+        {
+            var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/login", _userInfo);
+            await LoginService.Login(result.Token);
+            _errorMessage = null;
+            NavManager.NavigateTo("/");
+        }
+        catch (HttpRequestException e)
+        {
+            _errorMessage = "Login failed. User with this username and password doesn't exist.";
+        }
     }
 }
