@@ -1,5 +1,4 @@
 ﻿@page "/register"
-@page "/register/{ReturnUrl}"
 @inject HttpClient HttpClient
 @inject ILoginService LoginService
 @inject NavigationManager NavManager
@@ -25,18 +24,24 @@
         </div>
     </div>
 
-    <div class="form-group">
-        <label>Role:</label>
-        <div>
-            <InputSelect @bind-Value="_userInfo.Role">
-                @foreach (var role in _roles)
-                {
-                    <option value="@role">@role</option>
-                }
-            </InputSelect>
-            <ValidationMessage For="@(() => _userInfo.Role)" />
-        </div>
-    </div>
+    <AuthorizeView Roles="Admin" Context="state">
+        <Authorized>
+            <div class="form-group">
+                <label>Role:</label>
+                <div>
+                    <InputSelect @bind-Value="_userInfo.Role">
+                        @foreach (var role in _roles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => _userInfo.Role)"/>
+                </div>
+            </div>
+        </Authorized>
+
+        <NotAuthorized></NotAuthorized>
+    </AuthorizeView>
 
     <button type="submit" class="btn btn-primary">Register</button>
 </EditForm>
@@ -50,8 +55,8 @@
     private readonly UserCredentials _userInfo = new UserCredentials();
     private readonly List<string> _roles = new List<string> { "Editor", "Admin" };
 
-    [Parameter]
-    public string ReturnUrl { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> State { get; set; }
 
     private string _errorMessage;
 
@@ -73,14 +78,15 @@
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(ReturnUrl))
+        var state = await State;
+        if (state.User.IsInRole("Admin"))
         {
-            await LoginService.Login(result.Token);
-            NavManager.NavigateTo("/");
+            NavManager.NavigateTo("/users");
         }
         else
         {
-            NavManager.NavigateTo(ReturnUrl);
+            await LoginService.Login(result.Token);
+            NavManager.NavigateTo("/");
         }
 
         _errorMessage = null;
