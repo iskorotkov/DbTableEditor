@@ -19,76 +19,102 @@ else
                     <th @key="@column">@column</th>
                 }
             </tr>
+
+            <tr>
+                <td>
+                    <button type="button" class="btn btn-secondary" @onclick="@ClearFilters">Clear</button>
+                </td>
+                <td>
+                    <input type="text" @bind="@_nameFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_commanderFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_statusFilter" @bind:event="oninput"/>
+                </td>
+            </tr>
         </thead>
         <tbody>
-            @foreach (var (fleet, hasShips) in Fleets)
-            {
-                var f = fleet;
-                
-                <AuthorizeView Roles="Admin, Editor">
-                    <Authorized>
-                        <TableRow Model="@f" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                            <DataAnnotationsValidator/>
 
-                            <td>
-                                @if (hasShips)
-                                {
-                                    <span>Fleet can't be deleted.</span>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-link" @onclick="@(() => Remove(f))">
-                                        Remove
-                                    </button>
-                                }
-                            </td>
+            @{
+                var items = Fleets
+                    .Select(x => new
+                    {
+                        x.Fleet,
+                        x.HasShips,
+                        Commander = Commanders.Find(c => c.Id == x.Fleet.CommanderId)?.Name,
+                        Status = Statuses.Find(s => s.Id == x.Fleet.StatusId)?.Name
+                    })
+                    .Where(x => x.Fleet.Name?.Contains(_nameFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                    .Where(x => x.Status?.Contains(_statusFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                    .Where(x => x.Commander?.Contains(_commanderFilter, StringComparison.OrdinalIgnoreCase) ?? true);
 
-                            <TextCell @bind-Value="@f.Name">
-                                @if (DuplicatedName.Contains(f))
-                                {
-                                    <div class="validation-message">Name must be distinct.</div>
-                                }
-                            </TextCell>
+                @foreach (var item in items)
+                {
+                    var fleet = item.Fleet;
 
-                            <SelectItemCell @bind-Value="@f.CommanderId" Elements="@Commanders"
-                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
-                                @if (DuplicatedCommander.Contains(f))
-                                {
-                                    <div class="validation-message">Commander must be distinct.</div>
-                                }
-                            </SelectItemCell>
+                    <AuthorizeView Roles="Admin, Editor">
+                        <Authorized>
+                            <TableRow Model="@fleet" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                                <DataAnnotationsValidator/>
 
-                            <SelectItemCell @bind-Value="@f.StatusId" Elements="@Statuses"
-                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
-                        </TableRow>
-                    </Authorized>
-                    
-                    <NotAuthorized>
-                        <tr>
-                            <td></td>
-                            <td>@fleet.Name</td>
-                            <td>@Commanders.Find(c => c.Id == fleet.CommanderId).Name</td>
-                            <td>@Statuses.Find(s => s.Id == fleet.StatusId).Name</td>
-                        </tr>
-                    </NotAuthorized>
-                </AuthorizeView>
+                                <td>
+                                    @if (item.HasShips)
+                                    {
+                                        <span>Fleet can't be deleted.</span>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-danger" @onclick="@(() => Remove(fleet))">
+                                            Remove
+                                        </button>
+                                    }
+                                </td>
+
+                                <TextCell @bind-Value="@fleet.Name">
+                                    @if (DuplicatedName.Contains(fleet))
+                                    {
+                                        <div class="validation-message">Name must be distinct.</div>
+                                    }
+                                </TextCell>
+
+                                <SelectItemCell @bind-Value="@fleet.CommanderId" Elements="@Commanders"
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                                    @if (DuplicatedCommander.Contains(fleet))
+                                    {
+                                        <div class="validation-message">Commander must be distinct.</div>
+                                    }
+                                </SelectItemCell>
+
+                                <SelectItemCell @bind-Value="@fleet.StatusId" Elements="@Statuses"
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                            </TableRow>
+                        </Authorized>
+
+                        <NotAuthorized>
+                            <tr>
+                                <td></td>
+                                <td>@fleet.Name</td>
+                                <td>@item.Commander</td>
+                                <td>@item.Status</td>
+                            </tr>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                }
             }
-            
-            <AuthorizeView Roles="Admin, Editor">
-                <Authorized>
-                    <tr>
-                        <td>
-                            <button class="btn btn-link" @onclick="@Create">
-                                Create
-                            </button>
-                        </td>
-                    </tr>
-                </Authorized>
-                
-                <NotAuthorized></NotAuthorized>
-            </AuthorizeView>
         </tbody>
     </table>
+
+    <AuthorizeView Roles="Admin, Editor">
+        <Authorized>
+            <button class="btn btn-outline-success" @onclick="@Create">
+                Create
+            </button>
+        </Authorized>
+
+        <NotAuthorized></NotAuthorized>
+    </AuthorizeView>
 }
 
 @code {
@@ -101,6 +127,17 @@ else
 
     private List<string> Columns { get; set; } = new List<string>
     { "", "Name", "Commander", "Status" };
+
+    private string _nameFilter = "";
+    private string _commanderFilter = "";
+    private string _statusFilter = "";
+
+    private void ClearFilters()
+    {
+        _nameFilter = "";
+        _commanderFilter = "";
+        _statusFilter = "";
+    }
 
     protected override async Task OnInitializedAsync()
     {

@@ -19,71 +19,99 @@ else
                     <th @key="@column">@column</th>
                 }
             </tr>
+
+            <tr>
+                <td>
+                    <button class="btn btn-secondary" type="button" @onclick="@ClearFilters">Clear</button>
+                </td>
+                <td>
+                    <input type="text" @bind="@_allianceNameFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_empireNameFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_yearFilter" @bind:event="oninput"/>
+                </td>
+            </tr>
         </thead>
         <tbody>
-            @foreach (var item in Entries)
-            {
-                var entry = item;
+            @{
+                var items = Entries
+                    .Select(entry => new
+                    {
+                        Entry = entry,
+                        Alliance = Alliances.Find(a => a.Id == entry.AllianceId)?.Name,
+                        Empire = Empires.Find(e => e.Id == entry.EmpireId)?.Name
+                    })
+                    .Where(e => e.Alliance?.Contains(_allianceNameFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                    .Where(e => e.Empire?.Contains(_empireNameFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                    .Where(e => e.Entry.EntryYear.ToString().Contains(_yearFilter, StringComparison.OrdinalIgnoreCase));
 
-                <AuthorizeView Roles="Admin, Editor">
-                    <Authorized>
-                        <TableRow Model="@entry" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                            <DataAnnotationsValidator/>
+                @foreach (var item in items)
+                {
+                    var entry = item.Entry;
+                    var alliance = item.Alliance;
+                    var empire = item.Empire;
 
-                            <td>
-                                <button class="btn btn-link" @onclick="@(() => Remove(entry))">
-                                    Remove
-                                </button>
-                            </td>
+                    <AuthorizeView Roles="Admin, Editor">
+                        <Authorized>
+                            <TableRow Model="@entry" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                                <DataAnnotationsValidator/>
 
-                            <SelectItemCell @bind-Value="@entry.AllianceId" Elements="@Alliances"
-                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
-                                @if (DuplicatedName.Contains(entry))
-                                {
-                                    <div class="validation-message">Alliance-Empire pair must be unique.</div>
-                                }
-                            </SelectItemCell>
+                                <td>
+                                    <button class="btn btn-outline-danger" @onclick="@(() => Remove(entry))">
+                                        Remove
+                                    </button>
+                                </td>
 
-                            <SelectItemCell @bind-Value="@entry.EmpireId" Elements="@Empires"
-                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
-                                @if (DuplicatedName.Contains(entry))
-                                {
-                                    <div class="validation-message">Alliance-Empire pair must be unique.</div>
-                                }
-                            </SelectItemCell>
+                                <SelectItemCell @bind-Value="@entry.AllianceId" Elements="@Alliances"
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                                    @if (DuplicatedName.Contains(entry))
+                                    {
+                                        <div class="validation-message">Alliance-Empire pair must be unique.</div>
+                                    }
+                                </SelectItemCell>
 
-                            <NumberCell @bind-Value="@entry.EntryYear"/>
-                        </TableRow>
-                    </Authorized>
+                                <SelectItemCell @bind-Value="@entry.EmpireId" Elements="@Empires"
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                                    @if (DuplicatedName.Contains(entry))
+                                    {
+                                        <div class="validation-message">Alliance-Empire pair must be unique.</div>
+                                    }
+                                </SelectItemCell>
 
-                    <NotAuthorized>
-                        <tr>
-                            <td></td>
-                            <td>@Alliances.Find(a => a.Id == entry.AllianceId).Name</td>
-                            <td>@Empires.Find(e => e.Id == entry.EmpireId).Name</td>
-                            <td>@entry.EntryYear</td>
-                        </tr>
-                    </NotAuthorized>
-                </AuthorizeView>
+                                <NumberCell @bind-Value="@entry.EntryYear"/>
+                            </TableRow>
+                        </Authorized>
+
+                        <NotAuthorized>
+                            <tr>
+                                <td></td>
+                                <td>@alliance</td>
+                                <td>@empire</td>
+                                <td>@entry.EntryYear</td>
+                            </tr>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                }
             }
-            <AuthorizeView Roles="Admin, Editor">
-                <Authorized>
-                    <tr>
-                        <td>
-                            <button class="btn btn-link" @onclick="@Create">
-                                Create
-                            </button>
-                        </td>
-                    </tr>
-                </Authorized>
-
-                <NotAuthorized></NotAuthorized>
-            </AuthorizeView>
         </tbody>
     </table>
+
+    <AuthorizeView Roles="Admin, Editor">
+        <Authorized>
+            <button class="btn btn-outline-success" @onclick="@Create">
+                Create
+            </button>
+        </Authorized>
+
+        <NotAuthorized></NotAuthorized>
+    </AuthorizeView>
 }
 
-@code {
+@code
+{
     private List<AlliancesEntry> Entries { get; set; }
     private List<Alliance> Alliances { get; set; }
     private List<Empire> Empires { get; set; }
@@ -91,6 +119,10 @@ else
     private HashSet<AlliancesEntry> DuplicatedName { get; } = new HashSet<AlliancesEntry>();
 
     private List<string> Columns { get; } = new List<string> { "", "Alliance", "Empire", "Entry Year" };
+
+    private string _allianceNameFilter = "";
+    private string _empireNameFilter = "";
+    private string _yearFilter = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -190,4 +222,10 @@ else
         SaveOnClose.EditContext = ctx;
     }
 
+    private void ClearFilters()
+    {
+        _allianceNameFilter = "";
+        _empireNameFilter = "";
+        _yearFilter = "";
+    }
 }

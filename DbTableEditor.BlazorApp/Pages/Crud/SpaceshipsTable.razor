@@ -19,83 +19,143 @@ else
                     <th @key="@column">@column</th>
                 }
             </tr>
+
+            <tr>
+                <td>
+                    <button type="button" class="btn btn-secondary" @onclick="@ClearFilters">Clear</button>
+                </td>
+
+                <td>
+                    <input type="text" @bind="@_nameFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_capacityFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_energyFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_firepowerFilter" @bind:event="oninput"/>
+                </td>
+
+                <td>
+                    <input type="text" @bind="@_fuelFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_hullFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_speedFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_staffFilter" @bind:event="oninput"/>
+                </td>
+
+                <td>
+                    <input type="text" @bind="@_weightFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_fleetFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_shipyardFilter" @bind:event="oninput"/>
+                </td>
+            </tr>
         </thead>
         <tbody>
-            @foreach (var ship in Spaceships)
-            {
-                var s = ship;
-                
-                <AuthorizeView Roles="Admin, Editor">
-                    <Authorized>
-                        <TableRow Model="@s" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                            <DataAnnotationsValidator/>
+            @{
+                var items = Spaceships
+                    .Select(ship => new
+                    {
+                        Spaceship = ship,
+                        Fleet = Fleets.Find(x => x.Id == ship.FleetId)?.Name,
+                        Shipyard = Shipyards.Find(x => x.Id == ship.ShipyardId)?.Name
+                    })
+                    .Where(x => (x.Spaceship.Name?.Contains(_nameFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                                && x.Spaceship.Capacity.ToString().Contains(_capacityFilter, StringComparison.OrdinalIgnoreCase)
+                                && x.Spaceship.Energy.ToString().Contains(_nameFilter, StringComparison.OrdinalIgnoreCase)
+                                && x.Spaceship.Firepower.ToString().Contains(_nameFilter, StringComparison.OrdinalIgnoreCase)
+                                && x.Spaceship.Fuel.ToString().Contains(_nameFilter, StringComparison.OrdinalIgnoreCase)
+                                && x.Spaceship.Hull.ToString().Contains(_nameFilter, StringComparison.OrdinalIgnoreCase)
+                                && x.Spaceship.Speed.ToString().Contains(_nameFilter, StringComparison.OrdinalIgnoreCase)
+                                && x.Spaceship.Staff.ToString().Contains(_nameFilter, StringComparison.OrdinalIgnoreCase)
+                                && x.Spaceship.Weight.ToString().Contains(_nameFilter, StringComparison.OrdinalIgnoreCase)
+                                && (x.Fleet?.Contains(_fleetFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                                && (x.Shipyard?.Contains(_shipyardFilter, StringComparison.OrdinalIgnoreCase) ?? true));
 
-                            <td>
-                                <button class="btn btn-link" @onclick="@(() => Remove(s))">
-                                    Remove
-                                </button>
-                            </td>
+                @foreach (var item in items)
+                {
+                    var s = item.Spaceship;
 
-                            <TextCell @bind-Value="@s.Name">
-                                @if (DuplicatedName.Contains(s))
-                                {
-                                    <div class="validation-message">Name must be distinct.</div>
-                                }
-                            </TextCell>
+                    <AuthorizeView Roles="Admin, Editor">
+                        <Authorized>
+                            <TableRow Model="@s" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                                <DataAnnotationsValidator/>
 
-                            <NumberCell @bind-Value="@s.Capacity"/>
-                            <NumberCell @bind-Value="@s.Energy"/>
-                            <NumberCell @bind-Value="@s.Firepower"/>
-                            <NumberCell @bind-Value="@s.Fuel"/>
-                            <NumberCell @bind-Value="@s.Hull"/>
-                            <NumberCell @bind-Value="@s.Speed"/>
-                            <NumberCell @bind-Value="@s.Staff"/>
-                            <NumberCell @bind-Value="@s.Weight"/>
+                                <td>
+                                    <button class="btn btn-outline-danger" @onclick="@(() => Remove(s))">
+                                        Remove
+                                    </button>
+                                </td>
 
-                            <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
-                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                                <TextCell @bind-Value="@s.Name">
+                                    @if (DuplicatedName.Contains(s))
+                                    {
+                                        <div class="validation-message">Name must be distinct.</div>
+                                    }
+                                </TextCell>
 
-                            <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
-                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
-                        </TableRow>
-                    </Authorized>
-                    
-                    <NotAuthorized>
-                        <tr>
-                            <td>@s.Name</td>
-                            <td>@s.Capacity</td>
-                            <td>@s.Energy</td>
-                            <td>@s.Firepower</td>
-                            <td>@s.Fuel</td>
-                            <td>@s.Hull</td>
-                            <td>@s.Speed</td>
-                            <td>@s.Staff</td>
-                            <td>@s.Weight</td>
-                            <td>@Fleets.Find(f => f.Id == s.FleetId).Name</td>
-                            <td>@Shipyards.Find(shipyard => shipyard.Id == s.ShipyardId).Name</td>
-                        </tr>
-                    </NotAuthorized>
-                </AuthorizeView>
+                                <NumberCell @bind-Value="@s.Capacity"/>
+                                <NumberCell @bind-Value="@s.Energy"/>
+                                <NumberCell @bind-Value="@s.Firepower"/>
+                                <NumberCell @bind-Value="@s.Fuel"/>
+                                <NumberCell @bind-Value="@s.Hull"/>
+                                <NumberCell @bind-Value="@s.Speed"/>
+                                <NumberCell @bind-Value="@s.Staff"/>
+                                <NumberCell @bind-Value="@s.Weight"/>
+
+                                <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+
+                                <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                            </TableRow>
+                        </Authorized>
+
+                        <NotAuthorized>
+                            <tr>
+                                <td>@s.Name</td>
+                                <td>@s.Capacity</td>
+                                <td>@s.Energy</td>
+                                <td>@s.Firepower</td>
+                                <td>@s.Fuel</td>
+                                <td>@s.Hull</td>
+                                <td>@s.Speed</td>
+                                <td>@s.Staff</td>
+                                <td>@s.Weight</td>
+                                <td>@item.Fleet</td>
+                                <td>@item.Shipyard</td>
+                            </tr>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                }
             }
-            
-            <AuthorizeView Roles="Admin, Editor">
-                <Authorized>
-                    <tr>
-                        <td>
-                            <button class="btn btn-link" @onclick="@Create">
-                                Create
-                            </button>
-                        </td>
-                    </tr>
-                </Authorized>
-                
-                <NotAuthorized></NotAuthorized>
-            </AuthorizeView>
         </tbody>
     </table>
+
+    <AuthorizeView Roles="Admin, Editor">
+        <Authorized>
+            <button class="btn btn-outline-success" @onclick="@Create">
+                Create
+            </button>
+        </Authorized>
+
+        <NotAuthorized></NotAuthorized>
+    </AuthorizeView>
 }
 
-@code {
+@code
+{
     private List<Spaceship> Spaceships { get; set; }
     private List<Fleet> Fleets { get; set; }
     private List<Shipyard> Shipyards { get; set; }
@@ -107,6 +167,37 @@ else
         "", "Name", "Capacity",
         "Energy", "Firepower", "Fuel", "Hull", "Speed", "Staff", "Weight", "Fleet", "Shipyard"
     };
+
+    private string _nameFilter = "";
+    private string _capacityFilter = "";
+    private string _energyFilter = "";
+    private string _firepowerFilter = "";
+
+    private string _fuelFilter = "";
+    private string _hullFilter = "";
+    private string _speedFilter = "";
+    private string _staffFilter = "";
+
+    private string _weightFilter = "";
+    private string _fleetFilter = "";
+    private string _shipyardFilter = "";
+
+    private void ClearFilters()
+    {
+        _nameFilter = "";
+        _capacityFilter = "";
+        _energyFilter = "";
+        _firepowerFilter = "";
+
+        _fuelFilter = "";
+        _hullFilter = "";
+        _speedFilter = "";
+        _staffFilter = "";
+
+        _weightFilter = "";
+        _fleetFilter = "";
+        _shipyardFilter = "";
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -200,5 +291,4 @@ else
     {
         SaveOnClose.EditContext = ctx;
     }
-
 }

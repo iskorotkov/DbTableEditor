@@ -19,67 +19,81 @@ else
                     <th @key="@column">@column</th>
                 }
             </tr>
+
+            <tr>
+                <td>
+                    <button type="button" class="btn btn-secondary" @onclick="@ClearFilters">Clear</button>
+                </td>
+                <td>
+                    <input type="text" @bind="@_nameFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_powerFilter" @bind:event="oninput"/>
+                </td>
+            </tr>
         </thead>
         <tbody>
-            @foreach (var (al, emp) in Alliances)
-            {
-                var alliance = al;
-                var hasEmpires = emp;
+            @{
+                var items = Alliances
+                    .Where(a => a.Alliance.Name?.Contains(_nameFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                    .Where(a => a.Alliance.Power.ToString().Contains(_powerFilter, StringComparison.OrdinalIgnoreCase));
 
-                <AuthorizeView Roles="Admin, Editor">
-                    <Authorized>
-                        <TableRow Model="@alliance" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                            <DataAnnotationsValidator/>
+                @foreach (var (al, emp) in items)
+                {
+                    var alliance = al;
+                    var hasEmpires = emp;
 
-                            <td>
-                                @if (hasEmpires)
-                                {
-                                    <span>Alliance can't be deleted.</span>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-link" @onclick="@(() => Remove(alliance))">
-                                        Remove
-                                    </button>
-                                }
-                            </td>
+                    <AuthorizeView Roles="Admin, Editor">
+                        <Authorized>
+                            <TableRow Model="@alliance" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                                <DataAnnotationsValidator/>
 
-                            <TextCell @bind-Value="@alliance.Name">
-                                @if (DuplicatedName.Contains(alliance))
-                                {
-                                    <div class="validation-message">Name must be distinct.</div>
-                                }
-                            </TextCell>
+                                <td>
+                                    @if (hasEmpires)
+                                    {
+                                        <span>Alliance can't be deleted.</span>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-danger" @onclick="@(() => Remove(alliance))">
+                                            Remove
+                                        </button>
+                                    }
+                                </td>
 
-                            <NumberCell @bind-Value="@alliance.Power"/>
-                        </TableRow>
-                    </Authorized>
+                                <TextCell @bind-Value="@alliance.Name">
+                                    @if (DuplicatedName.Contains(alliance))
+                                    {
+                                        <div class="validation-message">Name must be distinct.</div>
+                                    }
+                                </TextCell>
 
-                    <NotAuthorized>
-                        <tr>
-                            <td></td>
-                            <td>@alliance.Name</td>
-                            <td>@alliance.Power</td>
-                        </tr>
-                    </NotAuthorized>
-                </AuthorizeView>
+                                <NumberCell @bind-Value="@alliance.Power"/>
+                            </TableRow>
+                        </Authorized>
+
+                        <NotAuthorized>
+                            <tr>
+                                <td></td>
+                                <td>@alliance.Name</td>
+                                <td>@alliance.Power</td>
+                            </tr>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                }
             }
-
-            <AuthorizeView Roles="Admin, Editor">
-                <Authorized>
-                    <tr>
-                        <td>
-                            <button class="btn btn-link" @onclick="@Create">
-                                Create
-                            </button>
-                        </td>
-                    </tr>
-                </Authorized>
-
-                <NotAuthorized></NotAuthorized>
-            </AuthorizeView>
         </tbody>
     </table>
+
+    <AuthorizeView Roles="Admin, Editor">
+        <Authorized>
+            <button class="btn btn-outline-success" @onclick="@Create">
+                Create
+            </button>
+        </Authorized>
+
+        <NotAuthorized></NotAuthorized>
+    </AuthorizeView>
 }
 
 @code {
@@ -88,6 +102,15 @@ else
     private HashSet<Alliance> DuplicatedName { get; set; } = new HashSet<Alliance>();
 
     private List<string> Columns { get; set; } = new List<string> { "", "Name", "Power" };
+
+    private string _nameFilter = "";
+    private string _powerFilter = "";
+
+    private void ClearFilters()
+    {
+        _nameFilter = "";
+        _powerFilter = "";
+    }
 
     protected override async Task OnInitializedAsync()
     {
