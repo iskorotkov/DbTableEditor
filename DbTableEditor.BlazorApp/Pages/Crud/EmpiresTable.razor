@@ -19,72 +19,101 @@ else
                     <th @key="@column">@column</th>
                 }
             </tr>
+
+            <tr>
+                <td>
+                    <button type="button" class="btn btn-secondary" @onclick="@ClearFilters">Clear</button>
+                </td>
+                <td>
+                    <input type="text" @bind="@_nameFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_powerFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_rulerFilter" @bind:event="oninput"/>
+                </td>
+                <td>
+                    <input type="text" @bind="@_governmentFilter" @bind:event="oninput"/>
+                </td>
+            </tr>
         </thead>
         <tbody>
-            @foreach (var (emp, inAlliance) in Empires)
-            {
-                var empire = emp;
-                var isInAlliance = inAlliance;
-                
-                <AuthorizeView Roles="Admin, Editor">
-                    <Authorized>
-                        <TableRow Model="@empire" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
-                            <DataAnnotationsValidator/>
+            @{
+                var items = Empires
+                    .Select(x => new
+                    {
+                        x.Empire,
+                        x.IsInAlliance,
+                        Government = GovernmentTypes.Find(t => t.Id == x.Empire.GovernmentTypeId)?.Name
+                    })
+                    .Where(x => x.Empire.Name?.Contains(_nameFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                    .Where(x => x.Empire.Power.ToString().Contains(_powerFilter, StringComparison.OrdinalIgnoreCase))
+                    .Where(x => x.Empire.Ruler?.Contains(_rulerFilter, StringComparison.OrdinalIgnoreCase) ?? true)
+                    .Where(x => x.Government?.Contains(_governmentFilter, StringComparison.OrdinalIgnoreCase) ?? true);
 
-                            <td>
-                                @if (isInAlliance)
-                                {
-                                    <span>Empire can't be deleted.</span>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-link" @onclick="@(() => Remove(empire))">
-                                        Remove
-                                    </button>
-                                }
-                            </td>
+                @foreach (var item in items)
+                {
+                    var empire = item.Empire;
+                    var isInAlliance = item.IsInAlliance;
 
-                            <TextCell @bind-Value="@empire.Name">
-                                @if (DuplicatedName.Contains(empire))
-                                {
-                                    <div class="validation-message">Name must be distinct.</div>
-                                }
-                            </TextCell>
+                    <AuthorizeView Roles="Admin, Editor">
+                        <Authorized>
+                            <TableRow Model="@empire" ValidSubmit="@SubmitChanges" FocusIn="@UpdateSelected">
+                                <DataAnnotationsValidator/>
 
-                            <NumberCell @bind-Value="@empire.Power"/>
-                            <TextCell @bind-Value="@empire.Ruler"/>
+                                <td>
+                                    @if (isInAlliance)
+                                    {
+                                        <span>Empire can't be deleted.</span>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-danger" @onclick="@(() => Remove(empire))">
+                                            Remove
+                                        </button>
+                                    }
+                                </td>
 
-                            <SelectItemCell @bind-Value="@empire.GovernmentTypeId" Elements="@GovernmentTypes"
-                                             IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
-                        </TableRow>
-                    </Authorized>
-                    
-                    <NotAuthorized>
-                        <tr>
-                            <td></td>
-                            <td>@empire.Name</td>
-                            <td>@empire.Power</td>
-                            <td>@empire.Ruler</td>
-                            <td>@GovernmentTypes.Find(t => t.Id == empire.GovernmentTypeId).Name</td>
-                        </tr>
-                    </NotAuthorized>
-                </AuthorizeView>
+                                <TextCell @bind-Value="@empire.Name">
+                                    @if (DuplicatedName.Contains(empire))
+                                    {
+                                        <div class="validation-message">Name must be distinct.</div>
+                                    }
+                                </TextCell>
+
+                                <NumberCell @bind-Value="@empire.Power"/>
+                                <TextCell @bind-Value="@empire.Ruler"/>
+
+                                <SelectItemCell @bind-Value="@empire.GovernmentTypeId" Elements="@GovernmentTypes"
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                            </TableRow>
+                        </Authorized>
+
+                        <NotAuthorized>
+                            <tr>
+                                <td></td>
+                                <td>@empire.Name</td>
+                                <td>@empire.Power</td>
+                                <td>@empire.Ruler</td>
+                                <td>@item.Government</td>
+                            </tr>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                }
             }
-            <AuthorizeView Roles="Admin, Editor">
-                <Authorized>
-                    <tr>
-                        <td>
-                            <button class="btn btn-link" @onclick="@Create">
-                                Create
-                            </button>
-                        </td>
-                    </tr>
-                </Authorized>
-                
-                <NotAuthorized></NotAuthorized>
-            </AuthorizeView>
         </tbody>
     </table>
+
+    <AuthorizeView Roles="Admin, Editor">
+        <Authorized>
+            <button class="btn btn-outline-success" @onclick="@Create">
+                Create
+            </button>
+        </Authorized>
+
+        <NotAuthorized></NotAuthorized>
+    </AuthorizeView>
 }
 
 @code {
@@ -92,6 +121,19 @@ else
     private List<GovernmentType> GovernmentTypes { get; set; }
 
     private HashSet<Empire> DuplicatedName { get; set; } = new HashSet<Empire>();
+
+    private string _nameFilter = "";
+    private string _powerFilter = "";
+    private string _rulerFilter = "";
+    private string _governmentFilter = "";
+
+    private void ClearFilters()
+    {
+        _nameFilter = "";
+        _powerFilter = "";
+        _rulerFilter = "";
+        _governmentFilter = "";
+    }
 
     private List<string> Columns { get; set; } = new List<string>
     {
