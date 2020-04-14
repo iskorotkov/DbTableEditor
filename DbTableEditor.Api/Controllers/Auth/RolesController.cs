@@ -28,7 +28,11 @@ namespace DbTableEditor.Api.Controllers.Auth
                 return NotFound();
             }
 
-            await _userManager.AddToRoleAsync(user, change.Role);
+            if (!await _userManager.IsInRoleAsync(user, change.Role))
+            {
+                await _userManager.AddToRoleAsync(user, change.Role);
+            }
+
             return Ok();
         }
 
@@ -41,7 +45,11 @@ namespace DbTableEditor.Api.Controllers.Auth
                 return NotFound();
             }
 
-            await _userManager.RemoveFromRoleAsync(user, change.Role);
+            if (await _userManager.IsInRoleAsync(user, change.Role))
+            {
+                await _userManager.RemoveFromRoleAsync(user, change.Role);
+            }
+
             return Ok();
         }
     }
