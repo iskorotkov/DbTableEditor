@@ -41,6 +41,7 @@
     {
         try
         {
+            _userInfo.Role = "";
             var result = await HttpClient.PostJsonAsync<UserToken>("api/accounts/login", _userInfo);
             await LoginService.Login(result.Token);
             _errorMessage = null;
