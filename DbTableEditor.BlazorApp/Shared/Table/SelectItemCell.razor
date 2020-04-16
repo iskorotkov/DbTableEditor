@@ -1,33 +1,57 @@
 ﻿@typeparam TValue
 
 <td>
-    <InputSelectNumber @attributes="@AdditionalAttributes"
-                       Value="@Value" TValue="int" ValueChanged="@_onChangedDelegate"
-                       ValueExpression="@ValueExpression">
-        @foreach (var e in Elements)
+    <div class="table">
+        <div class="d-table-cell">
+            <InputSelectNumber @attributes="@AdditionalAttributes"
+                                Value="@Value" TValue="int" ValueChanged="@_onChangedDelegate"
+                                ValueExpression="@ValueExpression">
+                @foreach (var e in Elements)
+                {
+                    var elem = e;
+                    <option value="@IndexFunc(elem)">@LabelFunc(elem)</option>
+                }
+            </InputSelectNumber>
+        </div>
+
+        @if (CreateAddress != null)
         {
-            var elem = e;
-            <option value="@IndexFunc(elem)">@LabelFunc(elem)</option>
+            <div class="d-table-cell">
+                <AddButton Address="@CreateAddress"/>
+            </div>
         }
-    </InputSelectNumber>
-    <ValidationMessage For="@ValueExpression" />
+    </div>
+
+    <ValidationMessage For="@ValueExpression"/>
+
     @ChildContent
 </td>
 
-@code {
-    [Parameter] public List<TValue> Elements { get; set; }
+@code
+{
+    [Parameter]
+    public string CreateAddress { get; set; }
 
-    [Parameter] public Func<TValue, int> IndexFunc { get; set; }
+    [Parameter]
+    public List<TValue> Elements { get; set; }
 
-    [Parameter] public Func<TValue, string> LabelFunc { get; set; }
+    [Parameter]
+    public Func<TValue, int> IndexFunc { get; set; }
 
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public Func<TValue, string> LabelFunc { get; set; }
 
-    [Parameter] public int Value { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
 
-    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+    [Parameter]
+    public int Value { get; set; }
 
-    [Parameter] public Expression<Func<int>> ValueExpression { get; set; }
+    [Parameter]
+    public EventCallback<int> ValueChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<int>> ValueExpression { get; set; }
 
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object> AdditionalAttributes { get; set; }

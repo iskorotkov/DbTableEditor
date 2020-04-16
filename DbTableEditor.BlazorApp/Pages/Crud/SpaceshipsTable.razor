@@ -115,7 +115,8 @@ else
                                 <NumberCell @bind-Value="@s.Weight"/>
 
                                 <SelectItemCell @bind-Value="@s.FleetId" Elements="@Fleets"
-                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"
+                                                 CreateAddress="/fleets"/>
 
                                 <SelectItemCell @bind-Value="@s.ShipyardId" Elements="@Shipyards"
                                                  IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"/>

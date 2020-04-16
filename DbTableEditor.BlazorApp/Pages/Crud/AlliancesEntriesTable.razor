@@ -66,7 +66,8 @@ else
                                 </td>
 
                                 <SelectItemCell @bind-Value="@entry.AllianceId" Elements="@Alliances"
-                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"
+                                                 CreateAddress="/alliances">
                                     @if (DuplicatedName.Contains(entry))
                                     {
                                         <div class="validation-message">Alliance-Empire pair must be unique.</div>
@@ -74,7 +75,8 @@ else
                                 </SelectItemCell>
 
                                 <SelectItemCell @bind-Value="@entry.EmpireId" Elements="@Empires"
-                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)">
+                                                 IndexFunc="@(e => e.Id)" LabelFunc="@(e => e.Name)"
+                                                 CreateAddress="/empires">
                                     @if (DuplicatedName.Contains(entry))
                                     {
                                         <div class="validation-message">Alliance-Empire pair must be unique.</div>

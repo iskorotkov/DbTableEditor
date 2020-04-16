@@ -1,0 +1,30 @@
+﻿@inject NavigationManager NavManager
+@inject NavStack Stack
+
+<button class="btn" @onclick="@Add">
+    <i class="oi oi-plus" style="color:limegreen;"></i>
+</button>
+
+@code
+{
+    [Parameter]
+    public string Address { get; set; }
+    
+    private void Add()
+    {
+        SaveCurrentAddress();
+        GoToCreationPage();
+    }
+
+    private void GoToCreationPage()
+    {
+        NavManager.NavigateTo(Address, true);
+    }
+
+    private void SaveCurrentAddress()
+    {
+        var baseUri = NavManager.BaseUri;
+        var address = NavManager.ToBaseRelativePath(baseUri);
+        Stack.Add(address);
+    }
+}

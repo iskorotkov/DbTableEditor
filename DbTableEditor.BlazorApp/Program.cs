@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using DbTableEditor.BlazorApp.Services.Auth;
+using DbTableEditor.BlazorApp.Services.Navigation;
 using DbTableEditor.BlazorApp.Services.Saving;
 
 namespace DbTableEditor.BlazorApp
@@ -19,6 +20,7 @@ namespace DbTableEditor.BlazorApp
             builder.Services.AddAuthorizationCore();
 
             builder.Services.AddScoped<ISaveOnCloseService, NoSaveOnClose>();
+            builder.Services.AddSingleton<NavStack>();
 
             builder.Services.AddScoped<JwtAuthenticationStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(provider =>

@@ -7,6 +7,9 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\scripts\saveOnClose.ts" />
+    <Content Update="Shared\Navigation\AddButton.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
