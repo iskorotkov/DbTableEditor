@@ -1,0 +1,32 @@
+﻿@inject NavigationManager NavManager
+@inject NavStack Stack
+
+@if (_backAddress != null)
+{
+    <button class="btn btn-secondary" @onclick="@Back">Return back</button>
+    <button class="btn btn-secondary" @onclick="@Clear">Clear</button>
+}
+
+@code
+{
+    private string _backAddress;
+
+    protected override void OnInitialized()
+    {
+        _backAddress = Stack.Top();
+    }
+
+    public void Back()
+    {
+        Console.WriteLine(_backAddress ?? "Null");
+        NavManager.NavigateTo(_backAddress);
+        Stack.Pop();
+        _backAddress = Stack.Top();
+    }
+
+    private void Clear()
+    {
+        _backAddress = null;
+        Stack.Clear();
+    }
+}

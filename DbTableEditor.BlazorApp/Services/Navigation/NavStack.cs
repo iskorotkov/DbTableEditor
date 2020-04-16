@@ -4,6 +4,8 @@ namespace DbTableEditor.BlazorApp.Services.Navigation
 {
     public class NavStack
     {
+        public int Size => _stack.Count;
+
         private readonly Stack<string> _stack = new Stack<string>();
 
         public bool IsEmpty()
@@ -21,9 +23,17 @@ namespace DbTableEditor.BlazorApp.Services.Navigation
             _stack.Push(address);
         }
 
-        public string Pop()
+        public void Pop()
         {
-            return _stack.Pop();
+            if (!IsEmpty())
+            {
+                _stack.Pop();
+            }
+        }
+        
+        public string Top()
+        {
+            return IsEmpty() ? null : _stack.Peek();
         }
     }
 }

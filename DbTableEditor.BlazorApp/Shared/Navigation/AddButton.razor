@@ -10,7 +10,7 @@
     [Parameter]
     public string Address { get; set; }
     
-    private void Add()
+    public void Add()
     {
         SaveCurrentAddress();
         GoToCreationPage();
@@ -18,13 +18,14 @@
 
     private void GoToCreationPage()
     {
-        NavManager.NavigateTo(Address, true);
+        NavManager.NavigateTo(Address);
     }
 
     private void SaveCurrentAddress()
     {
-        var baseUri = NavManager.BaseUri;
-        var address = NavManager.ToBaseRelativePath(baseUri);
+        var uri = NavManager.Uri;
+        var address = NavManager.ToBaseRelativePath(uri);
+        Console.WriteLine(address);
         Stack.Add(address);
     }
 }
