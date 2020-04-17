@@ -22,6 +22,13 @@ namespace DbTableEditor.Api.Controllers.Crud
             _context = context;
         }
 
+        [HttpGet("count")]
+        [AllowAnonymous]
+        public async Task<ActionResult<int>> Count()
+        {
+            return await _context.Commanders.CountAsync();
+        }
+
         // GET: api/Commanders
         [HttpGet]
         [AllowAnonymous]

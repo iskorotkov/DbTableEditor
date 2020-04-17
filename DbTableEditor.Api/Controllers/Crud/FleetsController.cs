@@ -23,6 +23,13 @@ namespace DbTableEditor.Api.Controllers.Crud
             _context = context;
         }
 
+        [HttpGet("count")]
+        [AllowAnonymous]
+        public async Task<ActionResult<int>> Count()
+        {
+            return await _context.Fleets.CountAsync();
+        }
+
         [HttpGet("operational")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<FleetOperational>>> GetOperationalFleets()

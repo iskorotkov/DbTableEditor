@@ -31,6 +31,13 @@ namespace DbTableEditor.Api.Controllers.Crud
             return await _context.Alliances.ToListAsync();
         }
 
+        [HttpGet("count")]
+        [AllowAnonymous]
+        public async Task<ActionResult<int>> Count()
+        {
+            return await _context.Alliances.CountAsync();
+        }
+
         [HttpGet("status")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<AllianceStatus>>> GetAlliancesStatus()

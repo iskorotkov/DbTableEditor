@@ -22,6 +22,29 @@ namespace DbTableEditor.Api.Controllers.Crud
             _context = context;
         }
 
+        [HttpGet("count")]
+        [AllowAnonymous]
+        public async Task<ActionResult<int>> Count()
+        {
+            return await _context.Spaceships.CountAsync();
+        }
+
+        [HttpGet("power")]
+        [AllowAnonymous]
+        public async Task<ActionResult<int>> Power()
+        {
+            return await _context.Spaceships.SumAsync(x => x.Firepower);
+        }
+
+        [HttpGet("mostPowerful")]
+        [AllowAnonymous]
+        public async Task<ActionResult<Spaceship>> MostPowerful()
+        {
+            return await _context.Spaceships
+                .OrderByDescending(x => x.Firepower)
+                .FirstOrDefaultAsync();
+        }
+
         // GET: api/Spaceships
         [HttpGet]
         [AllowAnonymous]

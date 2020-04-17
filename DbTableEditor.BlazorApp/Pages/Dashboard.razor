@@ -1,0 +1,86 @@
+﻿@page "/dashboard"
+
+@inject HttpClient HttpClient
+
+@if (_errorMessage != null)
+{
+    <span>
+        Error occured: 
+        @_errorMessage
+    </span>
+}
+else
+{
+    <h5>Total amounts:</h5>
+    <ul>
+        <li>Alliances: @_alliances</li>
+        <li>Alliances entries: @_alliancesEntries</li>
+        <li>Commanders: @_commanders</li>
+        <li>Empiers: @_empires</li>
+        <li>Fleets: @_fleets</li>
+        <li>Government types: @_governmentTypes</li>
+        <li>Shipyards: @_shipyards</li>
+        <li>Spaceships: @_spaceships</li>
+        <li>Fleet statuses: @_statuses</li>
+    </ul>
+    
+    <h5>Total power:</h5>
+    <ul>
+        <li>Empires: @_empiresPower</li>
+        <li>Ships: @_shipsPower</li>
+    </ul>
+
+    <h5>Most powerful:</h5>
+    <ul>
+        <li>Empire: @(_powerfulEmpire?.Name ?? "none")</li>
+        <li>Ship: @(_powerfulSpaceship?.Name ?? "none")</li>
+    </ul>
+}
+
+@code
+{
+    private int? _alliances;
+    private int? _alliancesEntries;
+    private int? _commanders;
+    private int? _empires;
+    private int? _fleets;
+    private int? _governmentTypes;
+    private int? _shipyards;
+    private int? _spaceships;
+    private int? _statuses;
+
+    private int? _shipsPower;
+    private int? _empiresPower;
+
+    private Empire _powerfulEmpire;
+    private Spaceship _powerfulSpaceship;
+
+    private string _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _alliances = await HttpClient.GetJsonAsync<int>("api/alliances/count");
+            _alliancesEntries = await HttpClient.GetJsonAsync<int>("api/alliancesEntries/count");
+            _commanders = await HttpClient.GetJsonAsync<int>("api/commanders/count");
+            _empires = await HttpClient.GetJsonAsync<int>("api/empires/count");
+            _fleets = await HttpClient.GetJsonAsync<int>("api/fleets/count");
+            _governmentTypes = await HttpClient.GetJsonAsync<int>("api/governmentTypes/count");
+            _shipyards = await HttpClient.GetJsonAsync<int>("api/shipyards/count");
+            _spaceships = await HttpClient.GetJsonAsync<int>("api/spaceships/count");
+            _statuses = await HttpClient.GetJsonAsync<int>("api/statuses/count");
+
+            _empiresPower = await HttpClient.GetJsonAsync<int>("api/empires/power");
+            _shipsPower = await HttpClient.GetJsonAsync<int>("api/spaceships/power");
+
+            _powerfulEmpire = await HttpClient.GetJsonAsync<Empire>("api/empires/mostPowerful");
+            _powerfulSpaceship = await HttpClient.GetJsonAsync<Spaceship>("api/spaceships/mostPowerful");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            _errorMessage = "Error occurred while fetching data.";
+        }
+    }
+}
